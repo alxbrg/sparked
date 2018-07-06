@@ -1,0 +1,11 @@
+.circleci
+.DS_Store
+.eslintrc
+.vscode
+coverage
+examples
+jest.config.js
+node_modules
+test
+yarn.lock
+*.log*

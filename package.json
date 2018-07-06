@@ -1,0 +1,26 @@
+{
+  "name": "sparked",
+  "version": "0.0.1",
+  "author": "Alexandre Borrego <alex@borrego.io>",
+  "repository": {
+    "url": "https://github.com/alxbrg/sparked.git",
+    "type": "git"
+  },
+  "license": "MIT",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint src",
+    "test": "jest --coverage"
+  },
+  "pre-commit": "lint, test",
+  "devDependencies": {
+    "eslint": "^4.15.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.1.1",
+    "pre-commit": "^1.2.2"
+  }
+}
