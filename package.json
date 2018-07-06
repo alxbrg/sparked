@@ -12,12 +12,12 @@
     "lint": "eslint src",
     "test": "jest --coverage"
   },
+  "pre-commit": "lint, test",
   "dependencies": {
     "lokijs": "^1.5.5",
     "ramda": "^0.25.0",
     "ramda-adjunct": "^2.9.0"
   },
-  "pre-commit": "lint, test",
   "devDependencies": {
     "codecov": "^3.0.2",
     "eslint": "^4.15.0",
