@@ -1,6 +1,6 @@
 {
   "name": "sparked",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Alexandre Borrego <alex@borrego.io>",
   "repository": {
     "url": "https://github.com/alxbrg/sparked.git",
@@ -11,6 +11,11 @@
   "scripts": {
     "lint": "eslint src",
     "test": "jest --coverage"
+  },
+  "dependencies": {
+    "lokijs": "^1.5.5",
+    "ramda": "^0.25.0",
+    "ramda-adjunct": "^2.9.0"
   },
   "pre-commit": "lint, test",
   "devDependencies": {
