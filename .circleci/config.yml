@@ -71,18 +71,30 @@ jobs:
 
 workflows:
   version: 2
-  test:
+  test-and-publish:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
+
       - lint:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+
       - test:
           requires:
             - build
-  publish:
-    jobs:
+          filters:
+            tags:
+              only: /.*/
+
       - publish:
+          requires:
+            - test
           filters:
             tags:
               only: /^v.*/
