@@ -36,19 +36,19 @@ describe('Database', () => {
       type: Database.IN_MEMORY,
     });
 
-    it('connects the db and emits a CONNECT event', async () => {
+    test('connects the db and emits a CONNECT event', async () => {
       await _db.connect();
       expect(_db.connected).toBe(true);
     });
 
-    it('disconnects the db and emits a DISCONNECT event', async () => {
+    test('disconnects the db and emits a DISCONNECT event', async () => {
       await _db.disconnect();
       expect(_db.connected).toBe(false);
     });
   });
 
   describe('create', () => {
-    it('creates a single object', async () => {
+    test('creates a single object', async () => {
       const mock = { foo: 1 };
       const res = await Test.create(mock);
       const store = collection.find({});
@@ -57,7 +57,7 @@ describe('Database', () => {
       expect(store).toHaveLength(1);
     });
 
-    it('creates multiple objects', async () => {
+    test('creates multiple objects', async () => {
       const mocks = [{ foo: 1 }, { foo: 2 }];
       const res = await Test.create(mocks);
       const store = collection.find({});
@@ -68,7 +68,7 @@ describe('Database', () => {
   });
 
   describe('delete', () => {
-    it('deletes objects', async () => {
+    test('deletes objects', async () => {
       const mock = { foo: 3 };
       collection.insert(mock);
       const res = await Test.delete(mock);
@@ -80,7 +80,7 @@ describe('Database', () => {
   });
 
   describe('find', () => {
-    it('finds objects', async () => {
+    test('finds objects', async () => {
       const mock = { foo: 2 };
       collection.insert(mock);
       const res = await Test.find(mock);
@@ -90,7 +90,7 @@ describe('Database', () => {
   });
 
   describe('update', () => {
-    it('$inc', async () => {
+    test('$inc', async () => {
       const mocks = [{ foo: 1, bar: 1 }, { foo: 2, bar: 1 }, { foo: 0, bar: 0 }];
       collection.insert(mocks);
       const res = await Test.update({ bar: 1 }, { $inc: { foo: 10 } });
@@ -98,7 +98,7 @@ describe('Database', () => {
       expect(res).toEqual([{ foo: 11, bar: 1, id: 1 }, { foo: 12, bar: 1, id: 2 }]);
     });
 
-    it('$mul', async () => {
+    test('$mul', async () => {
       const mocks = [{ foo: 1, bar: 1 }, { foo: 2, bar: 1 }, { foo: 0, bar: 0 }];
       collection.insert(mocks);
       const res = await Test.update({ bar: 1 }, { $mul: { foo: 10 } });
@@ -106,7 +106,7 @@ describe('Database', () => {
       expect(res).toEqual([{ foo: 10, bar: 1, id: 1 }, { foo: 20, bar: 1, id: 2 }]);
     });
 
-    it('$set', async () => {
+    test('$set', async () => {
       const mocks = [{ foo: 1, bar: 1 }, { bar: 1 }, { foo: 0, bar: 0 }];
       collection.insert(mocks);
       const res = await Test.update({ bar: 1 }, { $set: { foo: 10 } });
@@ -114,7 +114,7 @@ describe('Database', () => {
       expect(res).toEqual([{ foo: 10, bar: 1, id: 1 }, { foo: 10, bar: 1, id: 2 }]);
     });
 
-    it('$unset', async () => {
+    test('$unset', async () => {
       const mocks = [{ foo: 1, bar: 1 }, { bar: 1 }, { foo: 0, bar: 0 }];
       collection.insert(mocks);
       const res = await Test.update({ bar: 1 }, { $unset: { foo: 1 } });
@@ -122,7 +122,7 @@ describe('Database', () => {
       expect(res).toEqual([{ foo: null, bar: 1, id: 1 }, { foo: null, bar: 1, id: 2 }]);
     });
 
-    it('$pull', async () => {
+    test('$pull', async () => {
       const condition = { bar: 1 };
       const mocks = [
         { foo: [ 1, 2, 2 ], bar: 1 },
@@ -149,7 +149,7 @@ describe('Database', () => {
       ]);
     });
 
-    it('$push', async () => {
+    test('$push', async () => {
       const mocks = [{ foo: [ 1, 2 ], bar: 1 }, { foo: 1, bar: 1 }, { foo: 0, bar: 0 }];
       collection.insert(mocks);
       const res = await Test.update({ bar: 1 }, { $push: { foo: 3 } });
