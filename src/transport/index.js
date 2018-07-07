@@ -8,20 +8,21 @@ const {
 
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
+
 const IN_MEMORY = 'in-memory';
 const NATS = 'nats';
 
 class Transport extends EventEmitter {
   /**
-   * @param {object} options
+   * @param {object} [options]
    * @param {object} [options.adapter] optional custom adapter
-   * @param {string} options.type transport type ('in-memory' or 'nats')
+   * @param {string} [options.type] transport type ('in-memory' or 'nats' - default to
+   * 'in-memory')
    */
   constructor ({
     adapter,
-    type,
-    ...options
-  }) {
+    type = IN_MEMORY,
+  } = {}) {
     super();
 
     // Pick database adapter
@@ -29,7 +30,7 @@ class Transport extends EventEmitter {
       this._adapter = adapter;
     else switch (type) {
       case IN_MEMORY:
-        this._adapter = new InMemoryTransport(options);
+        this._adapter = new InMemoryTransport();
         break;
       // case NATS:
       //   this._adapter = new Nats(options);
