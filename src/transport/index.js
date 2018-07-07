@@ -73,11 +73,12 @@ class Transport extends EventEmitter {
    */
 
   /**
-   * Subscribes to a subject. The passed callback is called when a message is published
-   * to that subject.
+   * Subscribes to a subject.
    *
-   * @param {string} subject
-   * @param {callback} callback
+   * @param {string} subject accepts the use of wildcards: a token wildcard `*` and a full
+   * wildcard `>` (for instance: `x.*.z` matches both `x.y.z` and `x.abc.z` while `x.>`
+   * matches `x.y.z` as well as `x.a.b.c`)
+   * @param {callback} callback called when a message is published to that subject
    *
    * @returns {string} sid of the subscriber
    */

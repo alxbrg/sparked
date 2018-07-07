@@ -38,9 +38,9 @@ class InMemoryTransport {
   }
 
   publish (subject, message, replyTo) {
-    const subs = subsBySubject.get(subject) || new Map();
+    const subs = this._getSubsBySubject(subject);
 
-    for (const sub of subs.values())
+    for (const sub of subs)
       sub.callback(message, replyTo, subject);
   }
 
@@ -67,6 +67,21 @@ class InMemoryTransport {
     const subjectSubs = subsBySubject.get(sub.subject) || new Map();
     subjectSubs.set(sub.sid, sub);
     subsBySubject.set(sub.subject, subjectSubs);
+  }
+
+  _getSubsBySubject (subject) {
+    return Array.from(subsBySubject.keys())
+      .filter(_subject => {
+        const regExpString = _subject
+          .replace('>',   '[a-zA-Z0-9\\.]+') // '>' full wildcard
+          .replace(/\*/g, '[a-zA-Z0-9]+')    // '*' token wildcard
+          .replace(/\./g, '\\.');            // escape dots
+
+        const regExp = new RegExp(`^${regExpString}$`, 'g');
+        return regExp.test(subject);
+      })
+      // Get subs in a flattened array
+      .reduce((acc, s) => [ ...acc, ...subsBySubject.get(s).values() ], []);
   }
 }
 
