@@ -71,7 +71,7 @@ jobs:
 
 workflows:
   version: 2
-  test-and-publish:
+  test:
     jobs:
       - build
       - lint:
@@ -80,9 +80,11 @@ workflows:
       - test:
           requires:
             - build
+  publish:
+    jobs:
       - publish:
-          requires:
-            - test
           filters:
+            tags:
+              only: /^v.*/
             branches:
               only: master
