@@ -73,16 +73,30 @@ workflows:
   version: 2
   test-and-publish:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
+
       - lint:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+
       - test:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+
       - publish:
           requires:
             - test
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only: master
+              ignore: /.*/
