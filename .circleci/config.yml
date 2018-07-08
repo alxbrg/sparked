@@ -84,12 +84,13 @@ jobs:
           name: Publishing
           command: npm publish
 
+      # tag using package version
+      # NB: the test job ensures that the version has been incremented
       - run:
           name: Tagging
           command: |
-            # NB: the test job ensures that the version has been incremented
-            export CURRENT_VERSION=$(node -p "require('./package.json').version")
-            git tag $CURRENT_VERSION && git push --tags
+            export VERSION=$(node -p "require('./package.json').version")
+            git tag $VERSION && git push --tags
 
 workflows:
   version: 2
