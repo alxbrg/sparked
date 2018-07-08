@@ -4,7 +4,7 @@ const { EventEmitter } = require('events');
 const { is, isEmpty } = require('ramda');
 const { isNilOrEmpty } = require('ramda-adjunct');
 
-const { isArrayOf } = require('../utils');
+const { isArrayOf } = require('../_internal');
 const _Database = require('../database');
 const _Transport = require('../transport');
 

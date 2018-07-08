@@ -3,5 +3,8 @@
 module.exports = {
   Database: require('./database'),
   Transport: require('./transport'),
-  ...require('./services'),
+
+  // Services:
+  Service: require('./services/service'),
+  Manager: require('./services/manager'),
 };
