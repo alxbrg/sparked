@@ -122,10 +122,6 @@ class Database extends EventEmitter {
     return this._adapter.find(model, conditions, projection, options);
   }
 
-  join (options) {
-    return this._adapter.join(this._name, options);
-  }
-
   /**
    * Updates all objects matching the conditions.
    *

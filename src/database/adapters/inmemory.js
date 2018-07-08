@@ -58,10 +58,6 @@ class InMemoryStore {
     return this._return(found, projection, options);
   }
 
-  async join (collection, options) {
-
-  }
-
   async update (collection, conditions, updates, projection, options) {
     const objects = this._collections[collection].find(conditions);
 
