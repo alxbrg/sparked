@@ -81,18 +81,14 @@ class Service extends EventEmitter {
     await this._transport.connect();
     if (this._stateful) await this._db.connect();
 
-    this._onConnect();
-  }
-
-  _onConnect () {
-    this.connected = true;
-    this.emit(CONNECT);
-
     // Subscribe to subjects
     this._subjects.forEach(subject =>
       this._transport.subscribe(subject, this._onMessage.bind(this)));
 
     // TODO: instantiate the clients
+
+    this.connected = true;
+    this.emit(CONNECT);
   }
 
   _onMessage (...args) {
@@ -105,10 +101,6 @@ class Service extends EventEmitter {
     await this._transport.disconnect();
     if (this._stateful) await this._db.disconnect();
 
-    this._onDisconnect();
-  }
-
-  _onDisconnect () {
     this.connected = false;
     this.emit(DISCONNECT);
   }

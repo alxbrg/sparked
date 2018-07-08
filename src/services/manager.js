@@ -1,12 +1,15 @@
 'use strict';
 
-const { isNilOrEmpty } = require('ramda-adjunct');
 const Service = require('./service');
 
-const CREATE = 'create';
-const DELETE = 'delete';
-const FIND = 'find';
-const UPDATE = 'update';
+const {
+  constants: {
+    CREATE,
+    DELETE,
+    FIND,
+    UPDATE,
+  },
+} = require('../_internal');
 
 class Manager extends Service {
   constructor (options = {}) {
@@ -21,7 +24,8 @@ class Manager extends Service {
       } = {},
     } = options;
 
-    const subjects = schemas.reduce((acc, { name }) => {
+    // TODO: type-check schemas
+    this._subjects = schemas.reduce((acc, { name }) => {
       const model = name.toLowerCase();
       return [
         ...acc,
@@ -31,15 +35,12 @@ class Manager extends Service {
         `${model}.${UPDATE}`,
       ];
     }, []);
-
-    this._subjects = subjects;
   }
 
   async _onMessage (message, replyTo, subject) {
     super._onMessage(message, replyTo, subject);
 
     const [ model, action ] = subject.split('.');
-    if (isNilOrEmpty(model) || isNilOrEmpty(action)) return;
 
     let data = [];
 
