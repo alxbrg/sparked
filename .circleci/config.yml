@@ -56,21 +56,13 @@ jobs:
       # ensure that the package version has been incremented
       - run:
           name: Checking package version
-          command: |
-            export LATEST_VERSION=$(npm view sparked version)
-            export CURRENT_VERSION=$(node -p "require('./package.json').version")
-            if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]
-            then
-              echo -e "Success!"
-              exit 0
-            else
-              echo -e "Package version not updated."
-              exit 1
-            fi
+          command: .circleci/checkpkgversion.sh
 
   publish:
     <<: *defaults
     steps:
+      - checkout
+
       - attach_workspace:
           at: ~/repo
 
@@ -85,12 +77,11 @@ jobs:
           command: npm publish
 
       # tag using package version
-      # NB: the test job ensures that the version has been incremented
       - run:
           name: Tagging
           command: |
-            export VERSION=$(node -p "require('./package.json').version")
-            git tag $VERSION && git push --tags
+            .circleci/checkpkgversion.sh
+            git tag "v$PKG_VERSION" && git push --tags
 
 workflows:
   version: 2
