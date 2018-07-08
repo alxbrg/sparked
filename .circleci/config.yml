@@ -53,6 +53,21 @@ jobs:
           name: Running tests
           command: yarn test && yarn codecov
 
+      # ensure that the package version has been incremented
+      - run:
+          name: Checking package version
+          command: |
+            export LATEST_VERSION=$(npm view sparked version)
+            export CURRENT_VERSION=$(node -p "require('./package.json').version")
+            if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]
+            then
+              echo -e "Success!"
+              exit 0
+            else
+              echo -e "Package version not updated."
+              exit 1
+            fi
+
   publish:
     <<: *defaults
     steps:
@@ -68,6 +83,13 @@ jobs:
       - run:
           name: Publishing
           command: npm publish
+
+      - run:
+          name: Tagging
+          command: |
+            # NB: the test job ensures that the version has been incremented
+            export CURRENT_VERSION=$(node -p "require('./package.json').version")
+            git tag $CURRENT_VERSION && git push --tags
 
 workflows:
   version: 2
