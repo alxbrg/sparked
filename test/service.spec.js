@@ -8,9 +8,14 @@ const {
 
 const statefulOpts = {
   stateful: true,
-  dbOptions: {
-    schemas: [{ name: 'Foo', definition: { field: String } }],
-  },
+  db: new Database({
+    schemas: [{
+      name: 'Foo',
+      definition: {
+        field: String,
+      },
+    }],
+  }),
 };
 
 describe('Service', () => {
