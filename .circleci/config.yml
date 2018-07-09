@@ -28,7 +28,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # storing vars in a .bash_env file to persist them accross jobs
+      # storing vars in a .bash_env file to persist them across jobs
       - run:
           name: Setting up persistent env
           command: |
@@ -36,14 +36,16 @@ jobs:
             echo 'export NPM_VERSION=$(npm view sparked version)' >> .bash_env
 
       - persist_to_workspace:
-          root: ~/repo
-          paths: .
+          root: ~/
+          paths:
+            - repo
+            - .ssh
 
   lint:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: ~/
 
       # run linter
       - run:
@@ -54,14 +56,14 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: ~/
 
       # run tests
       - run:
           name: Running tests
           command: yarn test && yarn codecov
 
-      # ensure that the package version has been incremented
+      # ensure that the package version has been incremented correctly
       - run:
           name: Verifying package version
           command: .circleci/version.sh
@@ -70,7 +72,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: ~/
 
       # re-check package version in case job was triggered independently
       - run:
