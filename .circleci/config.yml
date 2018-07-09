@@ -10,6 +10,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+
       # download and cache dependencies
       - restore_cache:
           keys:
@@ -26,6 +27,13 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+
+      # storing vars in a .bash_env file to persist them accross jobs
+      - run:
+          name: Setting up persistent env
+          command: |
+            echo 'export PKG_VERSION=$(node -p "require('"'./package.json'"').version")' >> .bash_env
+            echo 'export NPM_VERSION=$(npm view sparked version)' >> .bash_env
 
       - persist_to_workspace:
           root: ~/repo
@@ -55,16 +63,19 @@ jobs:
 
       # ensure that the package version has been incremented
       - run:
-          name: Checking package version
-          command: .circleci/checkpkgversion.sh
+          name: Verifying package version
+          command: .circleci/version.sh
 
   publish:
     <<: *defaults
     steps:
-      - checkout
-
       - attach_workspace:
           at: ~/repo
+
+      # re-check package version in case job was triggered independently
+      - run:
+          name: Verifying package version
+          command: .circleci/version.sh
 
       # authenticate
       - run:
@@ -80,8 +91,9 @@ jobs:
       - run:
           name: Tagging
           command: |
-            .circleci/checkpkgversion.sh
-            git tag "v$PKG_VERSION" && git push --tags
+            source .bash_env
+            git tag "v$PKG_VERSION"
+            git push --tags
 
 workflows:
   version: 2
