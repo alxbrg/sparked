@@ -18,14 +18,7 @@ class Manager extends Service {
       ...options,
     });
 
-    const {
-      dbOptions: {
-        schemas,
-      } = {},
-    } = options;
-
-    // TODO: type-check schemas
-    this._subjects = schemas.reduce((acc, { name }) => {
+    this._subjects = this._db._schemas.reduce((acc, { name }) => {
       const model = name.toLowerCase();
       return [
         ...acc,

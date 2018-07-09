@@ -2,11 +2,10 @@
 
 const { EventEmitter } = require('events');
 const { is, isEmpty } = require('ramda');
-const { isNilOrEmpty } = require('ramda-adjunct');
 
 const { isArrayOf } = require('../_internal');
-const _Database = require('../database');
-const _Transport = require('../transport');
+const Database = require('../database');
+const Transport = require('../transport');
 
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
@@ -21,21 +20,8 @@ class Service extends EventEmitter {
    * @param {object} options
    */
   constructor ({
-    dbOptions: {
-      Database = _Database,
-
-      adapter: dbAdapter = undefined,
-      db = undefined,
-      schemas,
-      type: dbType = undefined,
-    } = {},
-
-    transportOptions: {
-      Transport = _Transport,
-
-      adapter: transportAdapter = undefined,
-      type: transportType = undefined,
-    } = {},
+    db,
+    transport = new Transport(),
 
     clients = [],
     stateful = false,
@@ -46,31 +32,21 @@ class Service extends EventEmitter {
     // if (!is(Array, clients) || (!isEmpty(clients) && !isArrayOf(String, clients)))
     //   throw new TypeError(`'clients' must be an array of clients`);
     if (!is(Boolean, stateful))
-      throw new TypeError(`'stateful' must be a boolean`);
+      throw new TypeError(`'stateful' must be a boolean.`);
     if (!is(Array, subjects) || (!isEmpty(subjects) && !isArrayOf(String, subjects)))
-      throw new TypeError(`'subjects' must be an array of strings`);
+      throw new TypeError(`'subjects' must be an array of strings.`);
+
+    if (stateful && !is(Database, db))
+      throw new TypeError(`'db' must be an instance of 'sparked.Database'.`);
+    if (!is(Transport, transport))
+      throw new TypeError(`'transport' must be an instance of 'sparked.Transport'.`);
+
+    this._db = db;
+    this._transport = transport;
 
     this._clients = clients;
     this._stateful = stateful;
     this._subjects = subjects;
-
-    if (this._stateful) {
-      // TODO: type-check schemas
-      if (isNilOrEmpty(schemas))
-        throw new TypeError(`Stateful services require schema definitions.`);
-
-      this._db = new Database({
-        adapter: dbAdapter,
-        db,
-        schemas,
-        type: dbType,
-      });
-    }
-
-    this._transport = new Transport({
-      adapter: transportAdapter,
-      type: transportType,
-    });
 
     this.connected = false;
   }
@@ -78,14 +54,13 @@ class Service extends EventEmitter {
   async connect () {
     if (this.connected) return;
 
+    // TODO: handle connection error
     await this._transport.connect();
     if (this._stateful) await this._db.connect();
 
     // Subscribe to subjects
     this._subjects.forEach(subject =>
       this._transport.subscribe(subject, this._onMessage.bind(this)));
-
-    // TODO: instantiate the clients
 
     this.connected = true;
     this.emit(CONNECT);
