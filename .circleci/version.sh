@@ -18,7 +18,7 @@ if [ "$NPM_VERSION" = "$PKG_VERSION" ] ; then fail ; fi
 IFS='. ' read -r -a npm_v <<< $NPM_VERSION
 IFS='. ' read -r -a pkg_v <<< $PKG_VERSION
 
-for i in `seq 0 2`
+for i in $(seq 0 2)
   do
     if   [ ${pkg_v[$i]} -gt ${npm_v[$i]} ] ; then pass
     elif [ ${pkg_v[$i]} -lt ${npm_v[$i]} ] ; then fail ; fi
