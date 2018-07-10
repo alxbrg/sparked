@@ -1,10 +1,9 @@
 'use strict';
 
 module.exports = {
+  Client: require('./client'),
   Database: require('./database'),
-  Transport: require('./transport'),
-
-  // Services:
-  Service: require('./services/service'),
   Manager: require('./services/manager'),
+  Service: require('./services/service'),
+  Transport: require('./transport'),
 };
