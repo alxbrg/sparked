@@ -14,8 +14,8 @@ const schemas = [{
 }];
 
 describe('integration', () => {
-  const db = new Database({ schemas });
   const client = new Client({ schema: schemas[0] });
+  const db = new Database({ schemas });
   const manager = new Manager({ db });
 
   const onCreated = jest.fn();
