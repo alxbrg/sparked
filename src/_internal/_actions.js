@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = {
+module.exports = Object.freeze({
   CREATE: 'create',
   DELETE: 'delete',
   FIND: 'find',
   UPDATE: 'update',
-};
+});

@@ -142,40 +142,40 @@ describe('Client', () => {
       await client.connect();
     });
 
-    test('on `create`', () => {
-      const onCreate = jest.fn();
-      client.on(Client.CREATE, onCreate);
+    test('on `created`', () => {
+      const onCreated = jest.fn();
+      client.on(Client.CREATED, onCreated);
 
-      transport.publish('create.test', 'message');
+      transport.publish('created.test', 'message');
 
-      expect(onCreate).toHaveBeenCalledWith('message');
+      expect(onCreated).toHaveBeenCalledWith('message');
     });
 
-    test('on `delete`', () => {
-      const onDelete = jest.fn();
-      client.on(Client.DELETE, onDelete);
+    test('on `deleted`', () => {
+      const onDeleted = jest.fn();
+      client.on(Client.DELETED, onDeleted);
 
-      transport.publish('delete.test', 'message');
+      transport.publish('deleted.test', 'message');
 
-      expect(onDelete).toHaveBeenCalledWith('message');
+      expect(onDeleted).toHaveBeenCalledWith('message');
     });
 
-    test('on `find`', () => {
-      const onFind = jest.fn();
-      client.on(Client.FIND, onFind);
+    test('on `found`', () => {
+      const onFound = jest.fn();
+      client.on(Client.FOUND, onFound);
 
-      transport.publish('find.test', 'message');
+      transport.publish('found.test', 'message');
 
-      expect(onFind).toHaveBeenCalledWith('message');
+      expect(onFound).toHaveBeenCalledWith('message');
     });
 
-    test('on `update`', () => {
-      const onUpdate = jest.fn();
-      client.on(Client.UPDATE, onUpdate);
+    test('on `updated`', () => {
+      const onUpdated = jest.fn();
+      client.on(Client.UPDATED, onUpdated);
 
-      transport.publish('update.test', 'message');
+      transport.publish('updated.test', 'message');
 
-      expect(onUpdate).toHaveBeenCalledWith('message');
+      expect(onUpdated).toHaveBeenCalledWith('message');
     });
   });
 });

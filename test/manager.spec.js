@@ -44,17 +44,28 @@ describe('Manager', () => {
     const onMessage = jest.fn();
 
     // Override db methods
-    const dbCreate = jest.fn().mockImplementation(() => 'created');
-    const dbDelete = jest.fn().mockImplementation(() => 'deleted');
-    const dbFind = jest.fn().mockImplementation(() => 'found');
-    const dbUpdate = jest.fn().mockImplementation(() => 'updated');
+    const dbCreate = jest.fn().mockImplementation(async () => 'created');
+    const dbDelete = jest.fn().mockImplementation(async () => 'deleted');
+    const dbFind = jest.fn().mockImplementation(async () => 'found');
+    const dbUpdate = jest.fn().mockImplementation(async () => 'updated');
 
     manager._db.create = dbCreate;
     manager._db.delete = dbDelete;
     manager._db.find = dbFind;
     manager._db.update = dbUpdate;
 
-    const pub = new Transport();
+    const client = new Transport();
+
+    // Subscribe to CRUD events
+    const onCreated = jest.fn();
+    const onDeleted = jest.fn();
+    const onFound = jest.fn();
+    const onUpdated = jest.fn();
+
+    client.subscribe('foo.created', onCreated);
+    client.subscribe('foo.deleted', onDeleted);
+    client.subscribe('foo.found', onFound);
+    client.subscribe('foo.updated', onUpdated);
 
     manager.on(Manager.MESSAGE, onMessage);
     manager.on(Manager.ERROR, () => {}); // ignore errors
@@ -64,7 +75,7 @@ describe('Manager', () => {
     });
 
     test('emits message event', () => {
-      pub.publish('foo.create', 'message');
+      client.publish('foo.create', 'message');
       expect(onMessage).toHaveBeenCalledWith('message', undefined, 'foo.create');
     });
 
@@ -77,9 +88,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      pub.request('foo.create', request, null, data => {
+      client.request('foo.create', request, null, data => {
+        const expectedData = { data: 'created' };
         expect(dbCreate).toHaveBeenCalledWith('foo', ...Object.values(request));
-        expect(data).toEqual({ data: 'created' });
+        expect(data).toEqual(expectedData);
+        expect(onCreated).toHaveBeenCalledWith(expectedData, undefined, 'foo.created');
         done();
       });
     });
@@ -91,9 +104,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      pub.request('foo.delete', request, null, data => {
+      client.request('foo.delete', request, null, data => {
+        const expectedData = { data: 'deleted' };
         expect(dbDelete).toHaveBeenCalledWith('foo', ...Object.values(request));
-        expect(data).toEqual({ data: 'deleted' });
+        expect(data).toEqual(expectedData);
+        expect(onDeleted).toHaveBeenCalledWith(expectedData, undefined, 'foo.deleted');
         done();
       });
     });
@@ -105,9 +120,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      pub.request('foo.find', request, null, data => {
+      client.request('foo.find', request, null, data => {
+        const expectedData = { data: 'found' };
         expect(dbFind).toHaveBeenCalledWith('foo', ...Object.values(request));
-        expect(data).toEqual({ data: 'found' });
+        expect(data).toEqual(expectedData);
+        expect(onFound).toHaveBeenCalledWith(expectedData, undefined, 'foo.found');
         done();
       });
     });
@@ -120,9 +137,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      pub.request('foo.update', request, null, data => {
+      client.request('foo.update', request, null, data => {
+        const expectedData = { data: 'updated' };
         expect(dbUpdate).toHaveBeenCalledWith('foo', ...Object.values(request));
-        expect(data).toEqual({ data: 'updated' });
+        expect(data).toEqual(expectedData);
+        expect(onUpdated).toHaveBeenCalledWith(expectedData, undefined, 'foo.updated');
         done();
       });
     });

@@ -17,7 +17,11 @@ class Service extends EventEmitter {
    * If called without `options`, the constructor returns a stateless instance listening
    * to every messages on the in-memory bus.
    *
-   * @param {object} options
+   * @param {object} [options]
+   * @param {object} [options.db]
+   * @param {object} [options.transport = new Transport()]
+   * @param {boolean} [options.stateful = false]
+   * @param {array} [options.subject = ['*', '*.>']]
    */
   constructor ({
     db,
@@ -51,6 +55,9 @@ class Service extends EventEmitter {
     this.connected = false;
   }
 
+  /**
+   * Connects the transport, connects the db if `stateful` and subscribes to the subjects.
+   */
   async connect () {
     if (this.connected) return;
 
@@ -66,10 +73,16 @@ class Service extends EventEmitter {
     this.emit(CONNECT);
   }
 
+  /**
+   * Emits everything received as `message` events.
+   */
   _onMessage (...args) {
     this.emit(MESSAGE, ...args);
   }
 
+  /**
+   * Disconnects the transport and db if stateful.
+   */
   async disconnect () {
     if (!this.connected) return;
 
