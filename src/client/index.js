@@ -66,9 +66,9 @@ class Client extends EventEmitter {
       DELETED,
       FOUND,
       UPDATED,
-    ].map(action => this._transport.subscribe(
-      `${action}.${this._schema.name.toLowerCase()}`,
-      message => this.emit(action, message)
+    ].map(event => this._transport.subscribe(
+      `${this._schema.name.toLowerCase()}.${event}`,
+      message => this.emit(event, message)
     ));
 
     this.connected = true;

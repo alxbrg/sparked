@@ -146,7 +146,7 @@ describe('Client', () => {
       const onCreated = jest.fn();
       client.on(Client.CREATED, onCreated);
 
-      transport.publish('created.test', 'message');
+      transport.publish('test.created', 'message');
 
       expect(onCreated).toHaveBeenCalledWith('message');
     });
@@ -155,7 +155,7 @@ describe('Client', () => {
       const onDeleted = jest.fn();
       client.on(Client.DELETED, onDeleted);
 
-      transport.publish('deleted.test', 'message');
+      transport.publish('test.deleted', 'message');
 
       expect(onDeleted).toHaveBeenCalledWith('message');
     });
@@ -164,7 +164,7 @@ describe('Client', () => {
       const onFound = jest.fn();
       client.on(Client.FOUND, onFound);
 
-      transport.publish('found.test', 'message');
+      transport.publish('test.found', 'message');
 
       expect(onFound).toHaveBeenCalledWith('message');
     });
@@ -173,7 +173,7 @@ describe('Client', () => {
       const onUpdated = jest.fn();
       client.on(Client.UPDATED, onUpdated);
 
-      transport.publish('updated.test', 'message');
+      transport.publish('test.updated', 'message');
 
       expect(onUpdated).toHaveBeenCalledWith('message');
     });
