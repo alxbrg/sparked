@@ -7,7 +7,6 @@ const {
 } = require('../src');
 
 const statefulOpts = {
-  stateful: true,
   db: new Database({
     schemas: [{
       name: 'Foo',
@@ -22,8 +21,7 @@ describe('Service', () => {
   describe('constructor', () => {
     test('type checks', () => {
       /* eslint-disable no-new */
-      expect(() => { new Service({ stateful: '' }); }).toThrow();
-      expect(() => { new Service({ subjects: '' }); }).toThrow();
+      expect(() => { new Service({ db: '' }); }).toThrow();
       /* eslint-enable no-new */
     });
 
@@ -31,18 +29,12 @@ describe('Service', () => {
       const service = new Service();
 
       expect(service._clients).toEqual([]);
-      expect(service._stateful).toBe(false);
+      expect(service._db).toBe(undefined);
       expect(service._transport).toBeInstanceOf(Transport);
       expect(service._subjects).toEqual([ '*', '*.>' ]);
     });
 
-    describe('stateful', () => {
-      test('throws without valid dbOptions', () => {
-        /* eslint-disable no-new */
-        expect(() => { new Service({ stateful: true }); }).toThrow();
-        /* eslint-enable no-new */
-      });
-
+    describe('with a db', () => {
       test('uses in-memory database by default', () => {
         const service = new Service(statefulOpts);
         expect(service._db).toBeInstanceOf(Database);

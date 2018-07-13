@@ -4,6 +4,7 @@ const { EventEmitter } = require('events');
 const { is, isEmpty } = require('ramda');
 
 const { isArrayOf } = require('../_internal');
+const Client = require('../client');
 const Database = require('../database');
 const Transport = require('../transport');
 
@@ -20,7 +21,6 @@ class Service extends EventEmitter {
    * @param {object} [options]
    * @param {object} [options.db]
    * @param {object} [options.transport = new Transport()]
-   * @param {boolean} [options.stateful = false]
    * @param {array} [options.subject = ['*', '*.>']]
    */
   constructor ({
@@ -28,20 +28,20 @@ class Service extends EventEmitter {
     transport = new Transport(),
 
     clients = [],
-    stateful = false,
     subjects = [ '*', '*.>' ],
   } = {}) {
     super();
 
-    // if (!is(Array, clients) || (!isEmpty(clients) && !isArrayOf(String, clients)))
-    //   throw new TypeError(`'clients' must be an array of clients`);
-    if (!is(Boolean, stateful))
-      throw new TypeError(`'stateful' must be a boolean.`);
+    // Assert arguments
+    if (!is(Array, clients) || (!isEmpty(clients) && !isArrayOf(Client, clients)))
+      throw new TypeError(`'clients' must be an array of 'sparked.Client'.`);
+
     if (!is(Array, subjects) || (!isEmpty(subjects) && !isArrayOf(String, subjects)))
       throw new TypeError(`'subjects' must be an array of strings.`);
 
-    if (stateful && !is(Database, db))
+    if (db != null && !is(Database, db))
       throw new TypeError(`'db' must be an instance of 'sparked.Database'.`);
+
     if (!is(Transport, transport))
       throw new TypeError(`'transport' must be an instance of 'sparked.Transport'.`);
 
@@ -49,21 +49,29 @@ class Service extends EventEmitter {
     this._transport = transport;
 
     this._clients = clients;
-    this._stateful = stateful;
     this._subjects = subjects;
 
     this.connected = false;
   }
 
   /**
-   * Connects the transport, connects the db if `stateful` and subscribes to the subjects.
+   * Connects the transport, connects the db if applicable and subscribes to the subjects.
    */
   async connect () {
     if (this.connected) return;
 
     // TODO: handle connection error
+    // Connect transport
     await this._transport.connect();
-    if (this._stateful) await this._db.connect();
+
+    // Connect db
+    if (this._db) await this._db.connect();
+
+    // Connect clients
+    if (!isEmpty(this._clients))
+      this._clients.forEach(client => {
+        client.connect();
+      });
 
     // Subscribe to subjects
     this._subjects.forEach(subject =>
@@ -81,13 +89,16 @@ class Service extends EventEmitter {
   }
 
   /**
-   * Disconnects the transport and db if stateful.
+   * Disconnects the transport and db if applicable.
    */
   async disconnect () {
     if (!this.connected) return;
 
+    // Disconnect transport
     await this._transport.disconnect();
-    if (this._stateful) await this._db.disconnect();
+
+    // Disconnect db
+    if (this._db) await this._db.disconnect();
 
     this.connected = false;
     this.emit(DISCONNECT);
