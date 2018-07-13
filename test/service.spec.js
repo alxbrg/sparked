@@ -1,19 +1,22 @@
 'use strict';
 
 const {
+  Client,
   Database,
   Transport,
   Service,
 } = require('../src');
 
+const schema = {
+  name: 'Foo',
+  definition: {
+    field: String,
+  },
+};
+
 const statefulOpts = {
   db: new Database({
-    schemas: [{
-      name: 'Foo',
-      definition: {
-        field: String,
-      },
-    }],
+    schemas: [schema],
   }),
 };
 
@@ -22,6 +25,10 @@ describe('Service', () => {
     test('type checks', () => {
       /* eslint-disable no-new */
       expect(() => { new Service({ db: '' }); }).toThrow();
+      expect(() => { new Service({ clients: '' }); }).toThrow();
+      expect(() => { new Service({ clients: [''] }); }).toThrow();
+      expect(() => { new Service({ subjects: '' }); }).toThrow();
+      expect(() => { new Service({ transport: '' }); }).toThrow();
       /* eslint-enable no-new */
     });
 
@@ -43,20 +50,26 @@ describe('Service', () => {
   });
 
   describe('connect/disconnect', () => {
-    const service = new Service(statefulOpts);
+    const service = new Service({
+      ...statefulOpts,
+      clients: [ new Client({ schema }) ],
+    });
 
     const onConnect = jest.fn();
     const onDisconnect = jest.fn();
     service.on(Service.CONNECT, onConnect);
     service.on(Service.DISCONNECT, onDisconnect);
 
-    test('connects to the default in-memory bus and database', async () => {
+    test('connects to the default in-memory bus and db, connects clients', async () => {
       await service.connect();
 
       expect(service.connected).toBe(true);
       expect(service._transport.connected).toBe(true);
+
       expect(service._db.connected).toBe(true);
       expect(onConnect).toHaveBeenCalledTimes(1);
+
+      expect(service._clients[0].connected).toBe(true);
     });
 
     test('disconnects', async () => {

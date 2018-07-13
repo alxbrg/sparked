@@ -21,7 +21,7 @@ class Service extends EventEmitter {
    * @param {object} [options]
    * @param {object} [options.db]
    * @param {object} [options.transport = new Transport()]
-   * @param {array} [options.subject = ['*', '*.>']]
+   * @param {array} [options.subjects = ['*', '*.>']]
    */
   constructor ({
     db,
@@ -69,9 +69,9 @@ class Service extends EventEmitter {
 
     // Connect clients
     if (!isEmpty(this._clients))
-      this._clients.forEach(client => {
-        client.connect();
-      });
+      for (const client of this._clients)
+        await client.connect();
+
 
     // Subscribe to subjects
     this._subjects.forEach(subject =>
