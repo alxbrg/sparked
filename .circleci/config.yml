@@ -66,6 +66,9 @@ jobs:
   version-check:
     <<: *defaults
     steps:
+      - attach_workspace:
+          at: ~/
+
       # ensure that the package version has been incremented correctly
       - run:
           name: Verifying package version
