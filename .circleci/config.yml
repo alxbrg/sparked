@@ -63,6 +63,9 @@ jobs:
           name: Running tests
           command: yarn test && yarn codecov
 
+  version-check:
+    <<: *defaults
+    steps:
       # ensure that the package version has been incremented correctly
       - run:
           name: Verifying package version
@@ -102,15 +105,26 @@ workflows:
   test-and-publish:
     jobs:
       - build
+
       - lint:
           requires:
             - build
+
       - test:
           requires:
             - build
-      - publish:
+
+      - version-check:
           requires:
             - test
+          filters:
+            branches:
+              - dev
+              - master
+
+      - publish:
+          requires:
+            - version-check
           filters:
             branches:
               only: master
