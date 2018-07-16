@@ -1,12 +1,14 @@
 'use strict';
 
 const { EventEmitter } = require('events');
-const { is, isEmpty } = require('ramda');
+const { is, isEmpty, pipe } = require('ramda');
 
 const { isArrayOf } = require('../_internal');
 const Client = require('../client');
 const Database = require('../database');
 const Transport = require('../transport');
+
+const mixins = require('./mixins');
 
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
@@ -54,6 +56,10 @@ class Service extends EventEmitter {
     this.connected = false;
   }
 
+  static use (...Mixins) {
+    return pipe(...Mixins)(this);
+  }
+
   /**
    * Connects the transport, connects the db if applicable and subscribes to the subjects.
    */
@@ -71,7 +77,6 @@ class Service extends EventEmitter {
     if (!isEmpty(this._clients))
       for (const client of this._clients)
         await client.connect();
-
 
     // Subscribe to subjects
     this._subjects.forEach(subject =>
@@ -109,5 +114,7 @@ Service.CONNECT = CONNECT;
 Service.DISCONNECT = DISCONNECT;
 Service.ERROR = ERROR;
 Service.MESSAGE = MESSAGE;
+
+Service.mixins = mixins;
 
 module.exports = Service;
