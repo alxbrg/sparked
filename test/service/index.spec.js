@@ -5,7 +5,7 @@ const {
   Database,
   Transport,
   Service,
-} = require('../src');
+} = require('../../src');
 
 const schema = {
   name: 'Foo',
@@ -93,5 +93,45 @@ describe('Service', () => {
     pub.publish('subject', 'message');
 
     expect(onMessage).toHaveBeenCalledWith('message', undefined, 'subject');
+  });
+
+  test('use', () => {
+    const MixinA = SuperClass => {
+      SuperClass.static = 'static';
+
+      return class extends SuperClass {
+        constructor () {
+          super();
+          this.plugin = 'A';
+        }
+        method () {
+          this.shared = 'A';
+          return 'A';
+        }
+        get onlyOnA () { return 'only_on_A'; }
+      };
+    };
+
+    const MixinB = SuperClass => class extends SuperClass {
+      constructor () {
+        super();
+        this.onlyOnB = 'only_on_B';
+        this.plugin = 'B';
+      }
+      method () {
+        this.shared = 'B';
+        return this.onlyOnB;
+      }
+    };
+
+    const Composed = Service.use(MixinA, MixinB);
+    const composed = new Composed();
+
+    expect(Composed.static).toEqual('static');
+    expect(composed.plugin).toBe('B');
+    expect(composed.shared).toBe(undefined);
+    expect(composed.method()).toEqual('only_on_B');
+    expect(composed.shared).toBe('B');
+    expect(composed.onlyOnA).toEqual('only_on_A');
   });
 });

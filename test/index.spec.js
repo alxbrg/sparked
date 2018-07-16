@@ -3,7 +3,7 @@
 const {
   Client,
   Database,
-  Manager,
+  Service,
 } =  require('../src');
 
 const schemas = [{
@@ -12,6 +12,8 @@ const schemas = [{
     field: String,
   },
 }];
+
+const Manager = Service.use(Service.mixins.Manager);
 
 describe('integration', () => {
   const client = new Client({ schema: schemas[0] });
