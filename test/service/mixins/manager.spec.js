@@ -2,9 +2,11 @@
 
 const {
   Database,
-  Manager,
+  Service,
   Transport,
-} = require('../src');
+} = require('../../../src');
+
+const Manager = Service.use(Service.mixins.Manager);
 
 const opts = {
   db: new Database({
