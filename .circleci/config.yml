@@ -119,7 +119,7 @@ workflows:
 
       - version-check:
           requires:
-            - test
+            - build
           filters:
             branches:
               only:
@@ -128,6 +128,8 @@ workflows:
 
       - publish:
           requires:
+            - lint
+            - test
             - version-check
           filters:
             branches:
