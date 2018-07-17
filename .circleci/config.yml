@@ -119,15 +119,12 @@ workflows:
 
       - version-check:
           requires:
-            - test
-          filters:
-            branches:
-              only:
-                - dev
-                - master
+            - build
 
       - publish:
           requires:
+            - lint
+            - test
             - version-check
           filters:
             branches:
