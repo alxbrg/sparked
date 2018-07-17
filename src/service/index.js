@@ -82,6 +82,10 @@ class Service extends EventEmitter {
     this._subjects.forEach(subject =>
       this._transport.subscribe(subject, this._onMessage.bind(this)));
 
+    return this._onConnect();
+  }
+
+  _onConnect () {
     this.connected = true;
     this.emit(CONNECT);
   }
@@ -105,6 +109,10 @@ class Service extends EventEmitter {
     // Disconnect db
     if (this._db) await this._db.disconnect();
 
+    return this._onDisconnect();
+  }
+
+  _onDisconnect () {
     this.connected = false;
     this.emit(DISCONNECT);
   }
