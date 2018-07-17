@@ -28,18 +28,9 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # storing vars in a .bash_env file to persist them across jobs
-      - run:
-          name: Setting up persistent env
-          command: |
-            echo 'export PKG_VERSION=$(node -p "require('"'./package.json'"').version")' >> .bash_env
-            echo 'export NPM_VERSION=$(npm view sparked version)' >> .bash_env
-
       - persist_to_workspace:
           root: ~/
-          paths:
-            - repo
-            - .ssh
+          paths: repo
 
   lint:
     <<: *defaults
@@ -63,49 +54,9 @@ jobs:
           name: Running tests
           command: yarn test && yarn codecov
 
-  version-check:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/
-
-      # ensure that the package version has been incremented correctly
-      - run:
-          name: Verifying package version
-          command: .circleci/version.sh
-
-  publish:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/
-
-      # re-check package version in case job was triggered independently
-      - run:
-          name: Verifying package version
-          command: .circleci/version.sh
-
-      # authenticate
-      - run:
-          name: Authenticating with registry
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
-
-      # publish package
-      - run:
-          name: Publishing
-          command: npm publish
-
-      # tag using package version
-      - run:
-          name: Tagging
-          command: |
-            source .bash_env
-            git tag "v$PKG_VERSION"
-            git push --tags
-
 workflows:
   version: 2
-  test-and-publish:
+  test:
     jobs:
       - build
 
@@ -116,16 +67,3 @@ workflows:
       - test:
           requires:
             - build
-
-      - version-check:
-          requires:
-            - build
-
-      - publish:
-          requires:
-            - lint
-            - test
-            - version-check
-          filters:
-            branches:
-              only: master
