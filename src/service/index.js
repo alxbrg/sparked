@@ -57,6 +57,11 @@ class Service extends EventEmitter {
   }
 
   static use (...Mixins) {
+    Mixins.forEach(Mixin => {
+      if (!is(Function, Mixin) || Mixin.length !== 1)
+        throw new TypeError(`'Mixins' must be unary functions returning classes.`);
+    });
+
     return pipe(...Mixins)(this);
   }
 

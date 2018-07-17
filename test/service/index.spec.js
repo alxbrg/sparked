@@ -95,43 +95,55 @@ describe('Service', () => {
     expect(onMessage).toHaveBeenCalledWith('message', undefined, 'subject');
   });
 
-  test('use', () => {
-    const MixinA = SuperClass => {
-      SuperClass.static = 'static';
+  describe('use', () => {
+    test('type check', () => {
+      expect(() => Service.use(undefined)).toThrow();
+      expect(() => Service.use(() => {})).toThrow();
+      expect(() => Service.use((x, y) => {})).toThrow();
 
-      return class extends SuperClass {
+      // Valid args
+      expect(() => Service.use(x => {})).not.toThrow();
+      expect(() => Service.use(x => {}, x => {})).not.toThrow();
+    });
+
+    test('composition', () => {
+      const MixinA = SuperClass => {
+        SuperClass.static = 'static';
+
+        return class extends SuperClass {
+          constructor () {
+            super();
+            this.plugin = 'A';
+          }
+          method () {
+            this.shared = 'A';
+            return 'A';
+          }
+          get onlyOnA () { return 'only_on_A'; }
+        };
+      };
+
+      const MixinB = SuperClass => class extends SuperClass {
         constructor () {
           super();
-          this.plugin = 'A';
+          this.onlyOnB = 'only_on_B';
+          this.plugin = 'B';
         }
         method () {
-          this.shared = 'A';
-          return 'A';
+          this.shared = 'B';
+          return this.onlyOnB;
         }
-        get onlyOnA () { return 'only_on_A'; }
       };
-    };
 
-    const MixinB = SuperClass => class extends SuperClass {
-      constructor () {
-        super();
-        this.onlyOnB = 'only_on_B';
-        this.plugin = 'B';
-      }
-      method () {
-        this.shared = 'B';
-        return this.onlyOnB;
-      }
-    };
+      const Composed = Service.use(MixinA, MixinB);
+      const composed = new Composed();
 
-    const Composed = Service.use(MixinA, MixinB);
-    const composed = new Composed();
-
-    expect(Composed.static).toEqual('static');
-    expect(composed.plugin).toBe('B');
-    expect(composed.shared).toBe(undefined);
-    expect(composed.method()).toEqual('only_on_B');
-    expect(composed.shared).toBe('B');
-    expect(composed.onlyOnA).toEqual('only_on_A');
+      expect(Composed.static).toEqual('static');
+      expect(composed.plugin).toBe('B');
+      expect(composed.shared).toBe(undefined);
+      expect(composed.method()).toEqual('only_on_B');
+      expect(composed.shared).toBe('B');
+      expect(composed.onlyOnA).toEqual('only_on_A');
+    });
   });
 });
