@@ -18,19 +18,19 @@ const ops = {
   $push: (a, b) => is(Array, a) ? a.concat(b) : a,
 };
 
-class InMemoryStore {
+class InMemory {
   constructor ({
     schemas,
-    db = new Loki(),
+    store = new Loki(),
   }) {
     this._schemas = schemas;
-    this._db = db;
+    this._store = store;
 
     // Create collections
     this._collections = {};
     for (const { name } of this._schemas) {
       const _name = name.toLowerCase();
-      this._collections[_name] = this._db.addCollection(_name, {
+      this._collections[_name] = this._store.addCollection(_name, {
         clone: true,
         disableMeta: true,
       });
@@ -92,4 +92,4 @@ class InMemoryStore {
   }
 }
 
-module.exports = InMemoryStore;
+module.exports = InMemory;

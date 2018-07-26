@@ -5,7 +5,7 @@ const { is, isEmpty, pipe } = require('ramda');
 
 const { isArrayOf } = require('../_internal');
 const Client = require('../client');
-const Database = require('../database');
+const Store = require('../store');
 const Transport = require('../transport');
 
 const mixins = require('./mixins');
@@ -21,12 +21,12 @@ class Service extends EventEmitter {
    * to every messages on the in-memory bus.
    *
    * @param {object} [options]
-   * @param {object} [options.db]
+   * @param {object} [options.store]
    * @param {object} [options.transport = new Transport()]
    * @param {array} [options.subjects = ['*', '*.>']]
    */
   constructor ({
-    db,
+    store,
     transport = new Transport(),
 
     clients = [],
@@ -41,13 +41,13 @@ class Service extends EventEmitter {
     if (!is(Array, subjects) || (!isEmpty(subjects) && !isArrayOf(String, subjects)))
       throw new TypeError(`'subjects' must be an array of strings.`);
 
-    if (db != null && !is(Database, db))
-      throw new TypeError(`'db' must be an instance of 'sparked.Database'.`);
+    if (store != null && !is(Store, store))
+      throw new TypeError(`'store' must be an instance of 'sparked.Store'.`);
 
     if (!is(Transport, transport))
       throw new TypeError(`'transport' must be an instance of 'sparked.Transport'.`);
 
-    this._db = db;
+    this._store = store;
     this._transport = transport;
 
     this._clients = clients;
@@ -66,7 +66,8 @@ class Service extends EventEmitter {
   }
 
   /**
-   * Connects the transport, connects the db if applicable and subscribes to the subjects.
+   * Connects the transport, connects the store if applicable and subscribes to the
+   * subjects.
    */
   async connect () {
     if (this.connected) return;
@@ -75,8 +76,8 @@ class Service extends EventEmitter {
     // Connect transport
     await this._transport.connect();
 
-    // Connect db
-    if (this._db) await this._db.connect();
+    // Connect store
+    if (this._store) await this._store.connect();
 
     // Connect clients
     if (!isEmpty(this._clients))
@@ -103,7 +104,7 @@ class Service extends EventEmitter {
   }
 
   /**
-   * Disconnects the transport and db if applicable.
+   * Disconnects the transport and store if applicable.
    */
   async disconnect () {
     if (!this.connected) return;
@@ -111,8 +112,8 @@ class Service extends EventEmitter {
     // Disconnect transport
     await this._transport.disconnect();
 
-    // Disconnect db
-    if (this._db) await this._db.disconnect();
+    // Disconnect store
+    if (this._store) await this._store.disconnect();
 
     return this._onDisconnect();
   }

@@ -3,7 +3,7 @@
 const { EventEmitter } = require('events');
 
 const {
-  InMemoryStore,
+  InMemory,
 } = require('./adapters');
 
 const CONNECT = 'connect';
@@ -13,31 +13,31 @@ const IN_MEMORY = 'in-memory';
 const MONGO = 'mongo';
 const MYSQL = 'mysql';
 
-class Database extends EventEmitter {
+class Store extends EventEmitter {
   /**
    * @param {object} options
    * @param {object} [options.adapter] optional custom adapter
-   * @param {object} [options.db] option custom database client
+   * @param {object} [options.store] option custom data-store client
    * @param {array} options.schemas array of schemas
-   * @param {string} [options.type] database type ('in-memory', 'mongo' or 'mysql' -
+   * @param {string} [options.type] data-store type ('in-memory', 'mongo' or 'mysql' -
    * defaults to 'in-memory')
    */
   constructor ({
     adapter,
-    db,
+    store,
     schemas,
     type = IN_MEMORY,
   }) {
     super();
 
-    const options = { db, schemas };
+    const options = { store, schemas };
 
-    // Pick database adapter
+    // Pick data-store adapter
     if (adapter)
       this._adapter = adapter;
     else switch (type) {
       case IN_MEMORY:
-        this._adapter = new InMemoryStore(options);
+        this._adapter = new InMemory(options);
         break;
       // case MONGO:
       //   this._adapter = new Mongo(options);
@@ -59,7 +59,7 @@ class Database extends EventEmitter {
   }
 
   /**
-   * Connects to the database using the options passed to the constructor.
+   * Connects to the data store using the options passed to the constructor.
    */
   async connect () {
     if (this.connected) return;
@@ -70,7 +70,7 @@ class Database extends EventEmitter {
   }
 
   /**
-   * Shuts down the database connection.
+   * Shuts down the data-store connection.
    */
   async disconnect () {
     if (!this.connected) return;
@@ -81,7 +81,7 @@ class Database extends EventEmitter {
   }
 
   /**
-   * Performs an insert of an object or objects into the database.
+   * Performs an insert of an object or objects into the data store.
    *
    * @param {string} model
    * @param {(array|object)} objects object(s) to insert
@@ -138,11 +138,11 @@ class Database extends EventEmitter {
   }
 }
 
-Database.CONNECT = CONNECT;
-Database.DISCONNECT = DISCONNECT;
+Store.CONNECT = CONNECT;
+Store.DISCONNECT = DISCONNECT;
 
-Database.IN_MEMORY = IN_MEMORY;
-Database.MONGO = MONGO;
-Database.MYSQL = MYSQL;
+Store.IN_MEMORY = IN_MEMORY;
+Store.MONGO = MONGO;
+Store.MYSQL = MYSQL;
 
-module.exports = Database;
+module.exports = Store;

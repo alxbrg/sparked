@@ -2,7 +2,7 @@
 
 const {
   Client,
-  Database,
+  Store,
   Service,
 } =  require('../src');
 
@@ -17,8 +17,8 @@ const Manager = Service.use(Service.mixins.Manager);
 
 describe('integration', () => {
   const client = new Client({ schema: schemas[0] });
-  const db = new Database({ schemas });
-  const manager = new Manager({ db });
+  const store = new Store({ schemas });
+  const manager = new Manager({ store });
 
   const onCreated = jest.fn();
   const onDeleted = jest.fn();
