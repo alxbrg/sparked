@@ -12,8 +12,6 @@ const Api = Super => {
 
   return class extends Super {
     constructor (options = {}) {
-      super(options);
-
       const {
         server,
         host = 'localhost',
@@ -33,6 +31,8 @@ const Api = Super => {
 
       if (!is(Number, port))
         throw new TypeError(`'port' must a string.`);
+
+      super(options);
 
       this.host = host;
       this.port = port;
