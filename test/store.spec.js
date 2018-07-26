@@ -57,19 +57,19 @@ describe('Store', () => {
     test('creates a single object', async () => {
       const mock = { foo: 1 };
       const res = await store.create('test', mock);
-      const store = collection.find({});
+      const stored = collection.find({});
 
       expect(res).toEqual([{ ...mock, id: 1 }]);
-      expect(store).toHaveLength(1);
+      expect(stored).toHaveLength(1);
     });
 
     test('creates multiple objects', async () => {
       const mocks = [{ foo: 1 }, { foo: 2 }];
       const res = await store.create('test', mocks);
-      const store = collection.find({});
+      const stored = collection.find({});
 
       expect(res).toEqual(mocks.map((mock, i) => ({ ...mock, id: i + 1 })));
-      expect(store).toHaveLength(2);
+      expect(stored).toHaveLength(2);
     });
   });
 
@@ -78,10 +78,10 @@ describe('Store', () => {
       const mock = { foo: 3 };
       collection.insert(mock);
       const res = await store.delete('test', mock);
-      const store = collection.find({});
+      const stored = collection.find({});
 
       expect(res).toEqual([{ ...mock, id: expect.any(Number) }]);
-      expect(store).toHaveLength(0);
+      expect(stored).toHaveLength(0);
     });
   });
 
