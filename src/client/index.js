@@ -98,7 +98,7 @@ class Client extends EventEmitter {
   }
 
   /**
-   * Requests the insert of an object or objects into the database.
+   * Requests the insert of an object or objects into the data store.
    *
    * @param {array} objects object(s) to insert
    * @param {object} [projection] optional fields to return

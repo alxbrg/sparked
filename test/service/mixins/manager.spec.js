@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  Database,
+  Store,
   Service,
   Transport,
 } = require('../../../src');
@@ -9,7 +9,7 @@ const {
 const Manager = Service.use(Service.mixins.Manager);
 
 const opts = {
-  db: new Database({
+  store: new Store({
     schemas: [{
       name: 'Foo',
       definition: {
@@ -21,7 +21,7 @@ const opts = {
 
 describe('Manager', () => {
   describe('constructor', () => {
-    test('throws without valid dbOptions', () => {
+    test('throws without valid storeOptions', () => {
       /* eslint-disable no-new */
       expect(() => { new Manager(); }).toThrow();
       /* eslint-enable no-new */
@@ -30,7 +30,7 @@ describe('Manager', () => {
     test('defaults', () => {
       const manager = new Manager(opts);
 
-      expect(manager._db).toBeInstanceOf(Database);
+      expect(manager._store).toBeInstanceOf(Store);
       expect(manager._transport).toBeInstanceOf(Transport);
       expect(manager._subjects).toEqual([
         'foo.create',
@@ -45,16 +45,16 @@ describe('Manager', () => {
     const manager = new Manager(opts);
     const onMessage = jest.fn();
 
-    // Override db methods
-    const dbCreate = jest.fn().mockImplementation(async () => 'created');
-    const dbDelete = jest.fn().mockImplementation(async () => 'deleted');
-    const dbFind = jest.fn().mockImplementation(async () => 'found');
-    const dbUpdate = jest.fn().mockImplementation(async () => 'updated');
+    // Override store methods
+    const storeCreate = jest.fn().mockImplementation(async () => 'created');
+    const storeDelete = jest.fn().mockImplementation(async () => 'deleted');
+    const storeFind = jest.fn().mockImplementation(async () => 'found');
+    const storeUpdate = jest.fn().mockImplementation(async () => 'updated');
 
-    manager._db.create = dbCreate;
-    manager._db.delete = dbDelete;
-    manager._db.find = dbFind;
-    manager._db.update = dbUpdate;
+    manager._store.create = storeCreate;
+    manager._store.delete = storeDelete;
+    manager._store.find = storeFind;
+    manager._store.update = storeUpdate;
 
     const client = new Transport();
 
@@ -82,7 +82,7 @@ describe('Manager', () => {
     });
 
     test('create', done => {
-      dbCreate.mockClear();
+      storeCreate.mockClear();
 
       const request = {
         objects: 'objects',
@@ -92,7 +92,7 @@ describe('Manager', () => {
 
       client.request('foo.create', request, null, data => {
         const expectedData = { data: 'created' };
-        expect(dbCreate).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeCreate).toHaveBeenCalledWith('foo', ...Object.values(request));
         expect(data).toEqual(expectedData);
         expect(onCreated).toHaveBeenCalledWith(expectedData, undefined, 'foo.created');
         done();
@@ -108,7 +108,7 @@ describe('Manager', () => {
 
       client.request('foo.delete', request, null, data => {
         const expectedData = { data: 'deleted' };
-        expect(dbDelete).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeDelete).toHaveBeenCalledWith('foo', ...Object.values(request));
         expect(data).toEqual(expectedData);
         expect(onDeleted).toHaveBeenCalledWith(expectedData, undefined, 'foo.deleted');
         done();
@@ -124,7 +124,7 @@ describe('Manager', () => {
 
       client.request('foo.find', request, null, data => {
         const expectedData = { data: 'found' };
-        expect(dbFind).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeFind).toHaveBeenCalledWith('foo', ...Object.values(request));
         expect(data).toEqual(expectedData);
         expect(onFound).toHaveBeenCalledWith(expectedData, undefined, 'foo.found');
         done();
@@ -141,7 +141,7 @@ describe('Manager', () => {
 
       client.request('foo.update', request, null, data => {
         const expectedData = { data: 'updated' };
-        expect(dbUpdate).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeUpdate).toHaveBeenCalledWith('foo', ...Object.values(request));
         expect(data).toEqual(expectedData);
         expect(onUpdated).toHaveBeenCalledWith(expectedData, undefined, 'foo.updated');
         done();

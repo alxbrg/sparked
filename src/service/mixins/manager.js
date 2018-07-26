@@ -32,19 +32,19 @@ const Manager = Super => {
   return class extends Super {
   /**
    * Constructs a stateful service listening for create | delete | find | update requests
-   * and forwards the queries to a db.
+   * and forwards the queries to a store.
    *
    * @param {object} [options]
-   * @param {object} [options.db]
+   * @param {object} [options.store]
    * @param {object} [options.transport = new Transport()]
    */
     constructor (options = {}) {
-      if (options.db == null)
-        throw new TypeError(`'db' is required`);
+      if (options.store == null)
+        throw new TypeError(`'store' is required`);
 
       super(options);
 
-      this._subjects = this._db._schemas.reduce((acc, { name }) => {
+      this._subjects = this._store._schemas.reduce((acc, { name }) => {
         const model = name.toLowerCase();
         return [
           ...acc,
@@ -106,7 +106,7 @@ const Manager = Super => {
    * @param {object} options
    */
     _create (model, objects, projection, options) {
-      return this._db.create(model, objects, projection, options)
+      return this._store.create(model, objects, projection, options)
         .then(this._publishEvent.bind(this, model, CREATED));
     }
 
@@ -130,7 +130,7 @@ const Manager = Super => {
    * @param {object} options
    */
     _delete (model, conditions, projection, options) {
-      return this._db.delete(model, conditions, projection, options)
+      return this._store.delete(model, conditions, projection, options)
         .then(this._publishEvent.bind(this, model, DELETED));
     }
 
@@ -154,7 +154,7 @@ const Manager = Super => {
    * @param {object} options
    */
     _find (model, conditions, projection, options) {
-      return this._db.find(model, conditions, projection, options)
+      return this._store.find(model, conditions, projection, options)
         .then(this._publishEvent.bind(this, model, FOUND));
     }
 
@@ -179,7 +179,7 @@ const Manager = Super => {
    * @param {object} options
    */
     _update (model, conditions, updates, projection, options) {
-      return this._db.update(model, conditions, updates, projection, options)
+      return this._store.update(model, conditions, updates, projection, options)
         .then(this._publishEvent.bind(this, model, UPDATED));
     }
 

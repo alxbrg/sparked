@@ -2,7 +2,7 @@
 
 const {
   Client,
-  Database,
+  Store,
   Transport,
   Service,
 } = require('../../src');
@@ -15,7 +15,7 @@ const schema = {
 };
 
 const statefulOpts = {
-  db: new Database({
+  store: new Store({
     schemas: [schema],
   }),
 };
@@ -24,7 +24,7 @@ describe('Service', () => {
   describe('constructor', () => {
     test('type checks', () => {
       /* eslint-disable no-new */
-      expect(() => { new Service({ db: '' }); }).toThrow();
+      expect(() => { new Service({ store: '' }); }).toThrow();
       expect(() => { new Service({ clients: '' }); }).toThrow();
       expect(() => { new Service({ clients: [''] }); }).toThrow();
       expect(() => { new Service({ subjects: '' }); }).toThrow();
@@ -36,15 +36,15 @@ describe('Service', () => {
       const service = new Service();
 
       expect(service._clients).toEqual([]);
-      expect(service._db).toBe(undefined);
+      expect(service._store).toBe(undefined);
       expect(service._transport).toBeInstanceOf(Transport);
       expect(service._subjects).toEqual([ '*', '*.>' ]);
     });
 
-    describe('with a db', () => {
-      test('uses in-memory database by default', () => {
+    describe('with a store', () => {
+      test('uses in-memory data store by default', () => {
         const service = new Service(statefulOpts);
-        expect(service._db).toBeInstanceOf(Database);
+        expect(service._store).toBeInstanceOf(Store);
       });
     });
   });
@@ -60,13 +60,13 @@ describe('Service', () => {
     service.on(Service.CONNECT, onConnect);
     service.on(Service.DISCONNECT, onDisconnect);
 
-    test('connects to the default in-memory bus and db, connects clients', async () => {
+    test('connects to the default in-memory bus and store, connects clients', async () => {
       await service.connect();
 
       expect(service.connected).toBe(true);
       expect(service._transport.connected).toBe(true);
 
-      expect(service._db.connected).toBe(true);
+      expect(service._store.connected).toBe(true);
       expect(onConnect).toHaveBeenCalledTimes(1);
 
       expect(service._clients[0].connected).toBe(true);
@@ -77,7 +77,7 @@ describe('Service', () => {
 
       expect(service.connected).toBe(false);
       expect(service._transport.connected).toBe(false);
-      expect(service._db.connected).toBe(false);
+      expect(service._store.connected).toBe(false);
       expect(onDisconnect).toHaveBeenCalledTimes(1);
     });
   });

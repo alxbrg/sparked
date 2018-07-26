@@ -2,7 +2,7 @@
 
 module.exports = {
   Client: require('./client'),
-  Database: require('./database'),
+  Store: require('./store'),
   Service: require('./service'),
   Transport: require('./transport'),
 };
