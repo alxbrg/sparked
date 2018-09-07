@@ -2,6 +2,8 @@
 
 const { Client, Transport } = require('../src');
 
+const entity = 'Test';
+
 describe('Client', () => {
   describe('constructor', () => {
     test('throws with invalid arguments', () => {
@@ -13,9 +15,7 @@ describe('Client', () => {
   });
 
   describe('connect/disconnect', () => {
-    const client = new Client({
-      schema: { name: 'Test' },
-    });
+    const client = new Client({ entity });
 
     const onConnect = jest.fn();
     const onDisconnect = jest.fn();
@@ -42,15 +42,7 @@ describe('Client', () => {
     const request = jest.fn();
     transport.request = request;
 
-    const client = new Client({
-      schema: {
-        name: 'Test',
-        definition: {
-          field: String,
-        },
-      },
-      transport,
-    });
+    const client = new Client({ entity, transport });
 
     beforeAll(async () => {
       await client.connect();
@@ -129,14 +121,7 @@ describe('Client', () => {
   describe('events', () => {
     const transport = new Transport();
 
-    const client = new Client({
-      schema: {
-        name: 'Test',
-        definition: {
-          field: String,
-        },
-      },
-    });
+    const client = new Client({ entity });
 
     beforeAll(async () => {
       await client.connect();

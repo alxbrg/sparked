@@ -26,25 +26,25 @@ const DISCONNECT = 'disconnect';
 
 class Client extends EventEmitter {
   /**
-   * Based on a single schema, makes requests to create | delete | find | update objects.
+   * Based on a single entity, makes requests to create | delete | find | update objects.
    * Emits created | deleted | found | updated events when reads and writes are performed.
    *
    * @param {object} options
-   * @param {object} options.schema
+   * @param {object} options.entity
    * @param {object} [options.transport]
    */
   constructor ({
-    schema,
+    entity,
     transport = new Transport(),
   } = {}) {
     super();
 
     if (!is(Transport, transport))
       throw new TypeError(`'transport' must be an instance of Transport.`);
-    if (schema == null)
-      throw new TypeError(`'schema' must be set.`);
+    if (entity == null)
+      throw new TypeError(`'entity' must be set.`);
 
-    this._schema = schema;
+    this.entity = entity.toLowerCase();
     this._transport = transport;
 
     this.connected = false;
@@ -52,7 +52,7 @@ class Client extends EventEmitter {
 
   /**
    * Connects transport and subscribes to create, delete, find and update events related
-   * to client's schema.
+   * to client's entity.
    */
   async connect () {
     if (this.connected) return;
@@ -67,7 +67,7 @@ class Client extends EventEmitter {
       FOUND,
       UPDATED,
     ].map(event => this._transport.subscribe(
-      `${this._schema.name.toLowerCase()}.${event}`,
+      `${this.entity}.${event}`,
       message => this.emit(event, message)
     ));
 
@@ -87,7 +87,7 @@ class Client extends EventEmitter {
   _request (action, message) {
     return new Promise((resolve, reject) => {
       this._transport.request(
-        `${this._schema.name.toLowerCase()}.${action}`,
+        `${this.entity}.${action}`,
         message,
         this._options,
         ({ error, data }) => {
