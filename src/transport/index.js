@@ -25,7 +25,7 @@ class Transport extends EventEmitter {
   } = {}) {
     super();
 
-    // Pick data-store adapter
+    // Pick transport adapter
     if (adapter)
       this._adapter = adapter;
     else switch (type) {

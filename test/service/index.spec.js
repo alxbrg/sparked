@@ -52,7 +52,7 @@ describe('Service', () => {
   describe('connect/disconnect', () => {
     const service = new Service({
       ...statefulOpts,
-      clients: [ new Client({ schema }) ],
+      clients: [ new Client({ entity: schema.name }) ],
     });
 
     const onConnect = jest.fn();
@@ -60,17 +60,18 @@ describe('Service', () => {
     service.on(Service.CONNECT, onConnect);
     service.on(Service.DISCONNECT, onDisconnect);
 
-    test('connects to the default in-memory bus and store, connects clients', async () => {
-      await service.connect();
+    test('connects to the default in-memory bus and store, and connects clients',
+      async () => {
+        await service.connect();
 
-      expect(service.connected).toBe(true);
-      expect(service._transport.connected).toBe(true);
+        expect(service.connected).toBe(true);
+        expect(service._transport.connected).toBe(true);
 
-      expect(service._store.connected).toBe(true);
-      expect(onConnect).toHaveBeenCalledTimes(1);
+        expect(service._store.connected).toBe(true);
+        expect(onConnect).toHaveBeenCalledTimes(1);
 
-      expect(service._clients[0].connected).toBe(true);
-    });
+        expect(service._clients[0].connected).toBe(true);
+      });
 
     test('disconnects', async () => {
       await service.disconnect();

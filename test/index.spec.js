@@ -16,7 +16,7 @@ const schemas = [{
 const Manager = Service.use(Service.mixins.Manager);
 
 describe('integration', () => {
-  const client = new Client({ schema: schemas[0] });
+  const client = new Client({ entity: schemas[0].name });
   const store = new Store({ schemas });
   const manager = new Manager({ store });
 
