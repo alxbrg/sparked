@@ -17,7 +17,8 @@
   "dependencies": {
     "lokijs": "^1.5.5",
     "ramda": "^0.25.0",
-    "ramda-adjunct": "^2.9.0"
+    "ramda-adjunct": "^2.9.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "codecov": "^3.0.2",
