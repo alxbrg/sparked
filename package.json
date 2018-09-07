@@ -1,6 +1,6 @@
 {
   "name": "sparked",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Flexible framework for bootstrapping simple distributed systems.",
   "author": "Alexandre Borrego <alex@borrego.io>",
   "repository": {
