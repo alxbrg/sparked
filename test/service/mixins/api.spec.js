@@ -1,23 +1,20 @@
 'use strict';
 
-const { createServer } = require('http');
-
 const { Service } = require('../../../src');
 
 const Api = Service.use(Service.mixins.Api);
 
 describe('Api', () => {
-  const server = createServer(() => {});
+  const server = () => ({ listen: () => {} });
 
   describe('constructor', () => {
     test('invalid options', () => {
       /* eslint-disable no-new */
       expect(() => { new Api(); }).toThrow();
       expect(() => { new Api({ server: 1 }); }).toThrow();
-      expect(() => { new Api({ server: { listen: 1 } }); }).toThrow();
-      expect(() => { new Api({ server: { listen: () => {}, close: 1 } }); }).toThrow();
+      expect(() => { new Api({ server: () => ({ listen: 1 }) }); }).toThrow();
       expect(() => { new Api({ server, host: 1 }); }).toThrow();
-      expect(() => { new Api({ server, port: 'port' }); }).toThrow();
+      expect(() => { new Api({ server, port: true }); }).toThrow();
       /* eslint-enable no-new */
     });
 
