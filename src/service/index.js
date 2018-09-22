@@ -4,11 +4,11 @@ const { EventEmitter } = require('events');
 const { is, isEmpty, pipe } = require('ramda');
 
 const { isArrayOf } = require('../_internal');
-const Client = require('../client');
+const Model = require('../model');
 const Store = require('../store');
 const Transport = require('../transport');
 
-const mixins = require('./mixins');
+const plugins = require('./plugins');
 
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
@@ -29,14 +29,14 @@ class Service extends EventEmitter {
     store,
     transport = new Transport(),
 
-    clients = [],
+    models = [],
     subjects = [ '*', '*.>' ],
   } = {}) {
     super();
 
     // Assert arguments
-    if (!is(Array, clients) || (!isEmpty(clients) && !isArrayOf(Client, clients)))
-      throw new TypeError(`'clients' must be an array of 'sparked.Client'.`);
+    if (!is(Array, models) || (!isEmpty(models) && !isArrayOf(Model, models)))
+      throw new TypeError(`'models' must be an array of 'sparked.Model'.`);
 
     if (!is(Array, subjects) || (!isEmpty(subjects) && !isArrayOf(String, subjects)))
       throw new TypeError(`'subjects' must be an array of strings.`);
@@ -50,19 +50,26 @@ class Service extends EventEmitter {
     this._store = store;
     this._transport = transport;
 
-    this._clients = clients;
+    this._models = models;
     this._subjects = subjects;
 
     this.connected = false;
   }
 
-  static use (...Mixins) {
-    Mixins.forEach(Mixin => {
-      if (!is(Function, Mixin) || Mixin.length !== 1)
-        throw new TypeError(`'Mixins' must be unary functions returning classes.`);
+  /**
+   * Returns a new class composing one or several plugins with this class.
+   *
+   * @param  {...function} plugins unary function(s) returning classes
+   *
+   * @returns {class} class
+   */
+  static use (...plugins) {
+    plugins.forEach(Plugin => {
+      if (!is(Function, Plugin) || Plugin.length !== 1)
+        throw new TypeError(`'plugins' must be unary functions returning classes.`);
     });
 
-    return pipe(...Mixins)(this);
+    return pipe(...plugins)(this);
   }
 
   /**
@@ -79,10 +86,10 @@ class Service extends EventEmitter {
     // Connect store
     if (this._store) await this._store.connect();
 
-    // Connect clients
-    if (!isEmpty(this._clients))
-      for (const client of this._clients)
-        await client.connect();
+    // Connect models
+    if (!isEmpty(this._models))
+      for (const model of this._models)
+        await model.connect();
 
     // Subscribe to subjects
     this._subjects.forEach(subject =>
@@ -129,6 +136,6 @@ Service.DISCONNECT = DISCONNECT;
 Service.ERROR = ERROR;
 Service.MESSAGE = MESSAGE;
 
-Service.mixins = mixins;
+Service.plugins = plugins;
 
 module.exports = Service;

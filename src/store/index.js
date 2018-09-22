@@ -18,19 +18,19 @@ class Store extends EventEmitter {
    * @param {object} options
    * @param {object} [options.adapter] optional custom adapter
    * @param {object} [options.store] option custom data-store client
-   * @param {array} options.schemas array of schemas
+   * @param {array} options.modelNames array of model names
    * @param {string} [options.type] data-store type ('in-memory', 'mongo' or 'mysql' -
    * defaults to 'in-memory')
    */
   constructor ({
     adapter,
     store,
-    schemas,
+    modelNames,
     type = IN_MEMORY,
   }) {
     super();
 
-    const options = { store, schemas };
+    const options = { store, modelNames };
 
     // Pick data-store adapter
     if (adapter)
@@ -52,7 +52,7 @@ class Store extends EventEmitter {
     }
 
     this.options = options;
-    this._schemas = schemas;
+    this._modelNames = modelNames;
     this.type = type;
 
     this.connected = false;

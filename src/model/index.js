@@ -24,27 +24,27 @@ const Transport = require('../transport');
 const CONNECT = 'connect';
 const DISCONNECT = 'disconnect';
 
-class Client extends EventEmitter {
+class Model extends EventEmitter {
   /**
-   * Based on a single entity, makes requests to create | delete | find | update objects.
+   * Based on an entity's name, makes requests to create | delete | find | update objects.
    * Emits created | deleted | found | updated events when reads and writes are performed.
    *
    * @param {object} options
-   * @param {object} options.entity
+   * @param {object} options.name
    * @param {object} [options.transport]
    */
   constructor ({
-    entity,
+    name,
     transport = new Transport(),
   } = {}) {
     super();
 
     if (!is(Transport, transport))
       throw new TypeError(`'transport' must be an instance of Transport.`);
-    if (entity == null)
-      throw new TypeError(`'entity' must be set.`);
+    if (name == null)
+      throw new TypeError(`'name' must be set.`);
 
-    this.entity = entity.toLowerCase();
+    this.name = name.toLowerCase();
     this._transport = transport;
 
     this.connected = false;
@@ -52,14 +52,14 @@ class Client extends EventEmitter {
 
   /**
    * Connects transport and subscribes to create, delete, find and update events related
-   * to client's entity.
+   * to the model's name.
    */
   async connect () {
     if (this.connected) return;
 
     await this._transport.connect();
 
-    // Subscribe to entity action events
+    // Subscribe to name action events
     // TODO: handle disconnections
     [
       CREATED,
@@ -67,7 +67,7 @@ class Client extends EventEmitter {
       FOUND,
       UPDATED,
     ].map(event => this._transport.subscribe(
-      `${this.entity}.${event}`,
+      `${this.name}.${event}`,
       message => this.emit(event, message)
     ));
 
@@ -76,8 +76,8 @@ class Client extends EventEmitter {
   }
 
   /**
-   * Makes a request to create | delete | find | update an entity. Resolves with the
-   * response and rejects if it contains any error.
+   * Makes a request to create | delete | find | update the underlying entities. Resolves
+   * with the response and rejects if it contains any error.
    *
    * @param {string} action
    * @param {object} message
@@ -87,7 +87,7 @@ class Client extends EventEmitter {
   _request (action, message) {
     return new Promise((resolve, reject) => {
       this._transport.request(
-        `${this.entity}.${action}`,
+        `${this.name}.${action}`,
         message,
         this._options,
         ({ error, data }) => {
@@ -163,17 +163,17 @@ class Client extends EventEmitter {
   }
 }
 
-Client.CREATE = CREATE;
-Client.DELETE = DELETE;
-Client.FIND = FIND;
-Client.UPDATE = UPDATE;
+Model.CREATE = CREATE;
+Model.DELETE = DELETE;
+Model.FIND = FIND;
+Model.UPDATE = UPDATE;
 
-Client.CREATED = CREATED;
-Client.DELETED = DELETED;
-Client.FOUND = FOUND;
-Client.UPDATED = UPDATED;
+Model.CREATED = CREATED;
+Model.DELETED = DELETED;
+Model.FOUND = FOUND;
+Model.UPDATED = UPDATED;
 
-Client.CONNECT = CONNECT;
-Client.DISCONNECT = DISCONNECT;
+Model.CONNECT = CONNECT;
+Model.DISCONNECT = DISCONNECT;
 
-module.exports = Client;
+module.exports = Model;

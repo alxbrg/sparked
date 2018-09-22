@@ -20,17 +20,17 @@ const ops = {
 
 class InMemory {
   constructor ({
-    schemas,
+    modelNames,
     store = new Loki(),
   }) {
-    this._schemas = schemas;
+    this._modelNames = modelNames;
     this._store = store;
 
     // Create collections
     this._collections = {};
-    for (const { name } of this._schemas) {
-      const _name = name.toLowerCase();
-      this._collections[_name] = this._store.addCollection(_name, {
+    for (const modelName of this._modelNames) {
+      const _modelName = modelName.toLowerCase();
+      this._collections[_modelName] = this._store.addCollection(_modelName, {
         clone: true,
         disableMeta: true,
       });

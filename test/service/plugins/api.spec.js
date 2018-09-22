@@ -2,7 +2,7 @@
 
 const { Service } = require('../../../src');
 
-const Api = Service.use(Service.mixins.Api);
+const Api = Service.use(Service.plugins.Api);
 
 describe('Api', () => {
   const server = () => ({ listen: () => {} });

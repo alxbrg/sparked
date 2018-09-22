@@ -6,16 +6,11 @@ const {
   Transport,
 } = require('../../../src');
 
-const Manager = Service.use(Service.mixins.Manager);
+const Manager = Service.use(Service.plugins.Manager);
 
 const opts = {
   store: new Store({
-    schemas: [{
-      name: 'Foo',
-      definition: {
-        field: String,
-      },
-    }],
+    modelNames: ['Foo'],
   }),
 };
 

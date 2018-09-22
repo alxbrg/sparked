@@ -44,38 +44,38 @@ const Manager = Super => {
 
       super(options);
 
-      this._subjects = this._store._schemas.reduce((acc, { name }) => {
-        const model = name.toLowerCase();
+      this._subjects = this._store._modelNames.reduce((acc, modelName) => {
+        const _modelName = modelName.toLowerCase();
         return [
           ...acc,
-          `${model}.${CREATE}`,
-          `${model}.${DELETE}`,
-          `${model}.${FIND}`,
-          `${model}.${UPDATE}`,
+          `${_modelName}.${CREATE}`,
+          `${_modelName}.${DELETE}`,
+          `${_modelName}.${FIND}`,
+          `${_modelName}.${UPDATE}`,
         ];
-      }, []);
+      }, options.subjects || []);
     }
 
     async _onMessage (message, replyTo, subject) {
       super._onMessage(message, replyTo, subject);
 
-      const [ model, action ] = subject.split('.');
+      const [ modelName, action ] = subject.split('.');
 
       let data = [];
 
       try {
         switch (action) {
           case CREATE:
-            data = await this._onCreate(model, message);
+            data = await this._onCreate(modelName, message);
             break;
           case DELETE:
-            data = await this._onDelete(model, message);
+            data = await this._onDelete(modelName, message);
             break;
           case FIND:
-            data = await this._onFind(model, message);
+            data = await this._onFind(modelName, message);
             break;
           case UPDATE:
-            data = await this._onUpdate(model, message);
+            data = await this._onUpdate(modelName, message);
             break;
         }
       } catch (error) {
@@ -89,109 +89,109 @@ const Manager = Super => {
     /**
    * Called when a `create` message is emitted.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} message
    * @param {object} message.objects
    * @param {object} message.projection
    * @param {object} message.options
    */
-    _onCreate (model, { objects, projection, options }) {
-      return this._create(model, objects, projection, options);
+    _onCreate (modelName, { objects, projection, options }) {
+      return this._create(modelName, objects, projection, options);
     }
 
     /**
-   * @param {object} model
+   * @param {object} modelName
    * @param {object} objects
    * @param {object} projection
    * @param {object} options
    */
-    _create (model, objects, projection, options) {
-      return this._store.create(model, objects, projection, options)
-        .then(this._publishEvent.bind(this, model, CREATED));
+    _create (modelName, objects, projection, options) {
+      return this._store.create(modelName, objects, projection, options)
+        .then(this._publishEvent.bind(this, modelName, CREATED));
     }
 
     /**
    * Called when a `delete` message is emitted.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} message
    * @param {object} message.conditions
    * @param {object} message.projection
    * @param {object} message.options
    */
-    _onDelete (model, { conditions, projection, options }) {
-      return this._delete(model, conditions, projection, options);
+    _onDelete (modelName, { conditions, projection, options }) {
+      return this._delete(modelName, conditions, projection, options);
     }
 
     /**
-   * @param {object} model
+   * @param {object} modelName
    * @param {object} conditions
    * @param {object} projection
    * @param {object} options
    */
-    _delete (model, conditions, projection, options) {
-      return this._store.delete(model, conditions, projection, options)
-        .then(this._publishEvent.bind(this, model, DELETED));
+    _delete (modelName, conditions, projection, options) {
+      return this._store.delete(modelName, conditions, projection, options)
+        .then(this._publishEvent.bind(this, modelName, DELETED));
     }
 
     /**
    * Called when a `find` message is emitted.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} message
    * @param {object} message.conditions
    * @param {object} message.projection
    * @param {object} message.options
    */
-    _onFind (model, { conditions, projection, options }) {
-      return this._find(model, conditions, projection, options);
+    _onFind (modelName, { conditions, projection, options }) {
+      return this._find(modelName, conditions, projection, options);
     }
 
     /**
-   * @param {object} model
+   * @param {object} modelName
    * @param {object} conditions
    * @param {object} projection
    * @param {object} options
    */
-    _find (model, conditions, projection, options) {
-      return this._store.find(model, conditions, projection, options)
-        .then(this._publishEvent.bind(this, model, FOUND));
+    _find (modelName, conditions, projection, options) {
+      return this._store.find(modelName, conditions, projection, options)
+        .then(this._publishEvent.bind(this, modelName, FOUND));
     }
 
     /**
    * Called when an `update` message is emitted.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} message
    * @param {object} message.objects
    * @param {object} message.projection
    * @param {object} message.options
    */
-    _onUpdate (model, { conditions, updates, projection, options }) {
-      return this._update(model, conditions, updates, projection, options);
+    _onUpdate (modelName, { conditions, updates, projection, options }) {
+      return this._update(modelName, conditions, updates, projection, options);
     }
 
     /**
-   * @param {object} model
+   * @param {object} modelName
    * @param {object} conditions
    * @param {object} updates
    * @param {object} projection
    * @param {object} options
    */
-    _update (model, conditions, updates, projection, options) {
-      return this._store.update(model, conditions, updates, projection, options)
-        .then(this._publishEvent.bind(this, model, UPDATED));
+    _update (modelName, conditions, updates, projection, options) {
+      return this._store.update(modelName, conditions, updates, projection, options)
+        .then(this._publishEvent.bind(this, modelName, UPDATED));
     }
 
     /**
-   * Publishes `data` to '`model`.`event`'.
+   * Publishes `data` to '`modelName`.`event`'.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {string} event
    * @param {array} data
    */
-    _publishEvent (model, event, data) {
-      this._transport.publish(`${model}.${event}`, { data });
+    _publishEvent (modelName, event, data) {
+      this._transport.publish(`${modelName}.${event}`, { data });
       return data;
     }
 

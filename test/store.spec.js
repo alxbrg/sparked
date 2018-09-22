@@ -11,7 +11,7 @@ describe('Store', () => {
   });
 
   const store = new Store({
-    schemas: [{ name: 'Test' }],
+    modelNames: ['Test'],
     type: Store.IN_MEMORY,
     store: loki,
   });
@@ -30,7 +30,7 @@ describe('Store', () => {
 
   describe('connect/disconnect', async () => {
     const _store = new Store({
-      schemas: [{ name: 'connect' }],
+      modelNames: ['connect'],
       type: Store.IN_MEMORY,
     });
 

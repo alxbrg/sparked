@@ -1,22 +1,17 @@
 'use strict';
 
 const {
-  Client,
+  Model,
   Store,
   Transport,
   Service,
 } = require('../../src');
 
-const schema = {
-  name: 'Foo',
-  definition: {
-    field: String,
-  },
-};
+const model = 'Foo';
 
 const statefulOpts = {
   store: new Store({
-    schemas: [schema],
+    modelNames: [model],
   }),
 };
 
@@ -25,8 +20,7 @@ describe('Service', () => {
     test('type checks', () => {
       /* eslint-disable no-new */
       expect(() => { new Service({ store: '' }); }).toThrow();
-      expect(() => { new Service({ clients: '' }); }).toThrow();
-      expect(() => { new Service({ clients: [''] }); }).toThrow();
+      expect(() => { new Service({ models: '' }); }).toThrow();
       expect(() => { new Service({ subjects: '' }); }).toThrow();
       expect(() => { new Service({ transport: '' }); }).toThrow();
       /* eslint-enable no-new */
@@ -35,7 +29,7 @@ describe('Service', () => {
     test('defaults', () => {
       const service = new Service();
 
-      expect(service._clients).toEqual([]);
+      expect(service._models).toEqual([]);
       expect(service._store).toBe(undefined);
       expect(service._transport).toBeInstanceOf(Transport);
       expect(service._subjects).toEqual([ '*', '*.>' ]);
@@ -52,7 +46,7 @@ describe('Service', () => {
   describe('connect/disconnect', () => {
     const service = new Service({
       ...statefulOpts,
-      clients: [ new Client({ entity: schema.name }) ],
+      models: [ new Model({ name: model }) ],
     });
 
     const onConnect = jest.fn();
@@ -60,7 +54,7 @@ describe('Service', () => {
     service.on(Service.CONNECT, onConnect);
     service.on(Service.DISCONNECT, onDisconnect);
 
-    test('connects to the default in-memory bus and store, and connects clients',
+    test('connects to the default in-memory bus and store, and connects models',
       async () => {
         await service.connect();
 
@@ -70,7 +64,7 @@ describe('Service', () => {
         expect(service._store.connected).toBe(true);
         expect(onConnect).toHaveBeenCalledTimes(1);
 
-        expect(service._clients[0].connected).toBe(true);
+        expect(service._models[0].connected).toBe(true);
       });
 
     test('disconnects', async () => {

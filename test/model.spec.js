@@ -1,38 +1,38 @@
 'use strict';
 
-const { Client, Transport } = require('../src');
+const { Model, Transport } = require('../src');
 
-const entity = 'Test';
+const name = 'Test';
 
-describe('Client', () => {
+describe('Model', () => {
   describe('constructor', () => {
     test('throws with invalid arguments', () => {
       /* eslint-disable no-new */
-      expect(() => { new Client(); }).toThrow();
-      expect(() => { new Client({ transport: {} }); }).toThrow();
+      expect(() => { new Model(); }).toThrow();
+      expect(() => { new Model({ transport: {} }); }).toThrow();
       /* eslint-enable no-new */
     });
   });
 
   describe('connect/disconnect', () => {
-    const client = new Client({ entity });
+    const model = new Model({ name });
 
     const onConnect = jest.fn();
     const onDisconnect = jest.fn();
-    client.on(Transport.CONNECT, onConnect);
-    client.on(Transport.DISCONNECT, onDisconnect);
+    model.on(Transport.CONNECT, onConnect);
+    model.on(Transport.DISCONNECT, onDisconnect);
 
     test('connects transport', async () => {
-      await client.connect();
+      await model.connect();
 
-      expect(client.connected).toBe(true);
+      expect(model.connected).toBe(true);
       expect(onConnect).toHaveBeenCalledTimes(1);
     });
 
     test('disconnects transport', async () => {
-      await client.disconnect();
+      await model.disconnect();
 
-      expect(client.connected).toBe(false);
+      expect(model.connected).toBe(false);
       expect(onConnect).toHaveBeenCalledTimes(1);
     });
   });
@@ -42,17 +42,17 @@ describe('Client', () => {
     const request = jest.fn();
     transport.request = request;
 
-    const client = new Client({ entity, transport });
+    const model = new Model({ name, transport });
 
     beforeAll(async () => {
-      await client.connect();
+      await model.connect();
     });
 
     test('create', async () => {
       request.mockClear();
       const args = { objects: 'objects', projection: 'projection', options: 'options' };
 
-      client.create(...Object.keys(args));
+      model.create(...Object.keys(args));
 
       expect(request).toHaveBeenCalledWith(
         'test.create',
@@ -70,7 +70,7 @@ describe('Client', () => {
         options: 'options',
       };
 
-      client.delete(...Object.keys(args));
+      model.delete(...Object.keys(args));
 
       expect(request).toHaveBeenCalledWith(
         'test.delete',
@@ -88,7 +88,7 @@ describe('Client', () => {
         options: 'options',
       };
 
-      client.find(...Object.keys(args));
+      model.find(...Object.keys(args));
 
       expect(request).toHaveBeenCalledWith(
         'test.find',
@@ -107,7 +107,7 @@ describe('Client', () => {
         options: 'options',
       };
 
-      client.update(...Object.keys(args));
+      model.update(...Object.keys(args));
 
       expect(request).toHaveBeenCalledWith(
         'test.update',
@@ -121,15 +121,15 @@ describe('Client', () => {
   describe('events', () => {
     const transport = new Transport();
 
-    const client = new Client({ entity });
+    const model = new Model({ name });
 
     beforeAll(async () => {
-      await client.connect();
+      await model.connect();
     });
 
     test('on `created`', () => {
       const onCreated = jest.fn();
-      client.on(Client.CREATED, onCreated);
+      model.on(Model.CREATED, onCreated);
 
       transport.publish('test.created', 'message');
 
@@ -138,7 +138,7 @@ describe('Client', () => {
 
     test('on `deleted`', () => {
       const onDeleted = jest.fn();
-      client.on(Client.DELETED, onDeleted);
+      model.on(Model.DELETED, onDeleted);
 
       transport.publish('test.deleted', 'message');
 
@@ -147,7 +147,7 @@ describe('Client', () => {
 
     test('on `found`', () => {
       const onFound = jest.fn();
-      client.on(Client.FOUND, onFound);
+      model.on(Model.FOUND, onFound);
 
       transport.publish('test.found', 'message');
 
@@ -156,7 +156,7 @@ describe('Client', () => {
 
     test('on `updated`', () => {
       const onUpdated = jest.fn();
-      client.on(Client.UPDATED, onUpdated);
+      model.on(Model.UPDATED, onUpdated);
 
       transport.publish('test.updated', 'message');
 

@@ -1,23 +1,18 @@
 'use strict';
 
 const {
-  Client,
+  Model,
   Store,
   Service,
 } =  require('../src');
 
-const schemas = [{
-  name: 'Test',
-  definition: {
-    field: String,
-  },
-}];
+const modelNames = ['Test'];
 
-const Manager = Service.use(Service.mixins.Manager);
+const Manager = Service.use(Service.plugins.Manager);
 
 describe('integration', () => {
-  const client = new Client({ entity: schemas[0].name });
-  const store = new Store({ schemas });
+  const model = new Model({ name: modelNames[0] });
+  const store = new Store({ modelNames });
   const manager = new Manager({ store });
 
   const onCreated = jest.fn();
@@ -25,13 +20,13 @@ describe('integration', () => {
   const onFound = jest.fn();
   const onUpdated = jest.fn();
 
-  client.on(Client.CREATED, onCreated);
-  client.on(Client.DELETED, onDeleted);
-  client.on(Client.FOUND, onFound);
-  client.on(Client.UPDATED, onUpdated);
+  model.on(Model.CREATED, onCreated);
+  model.on(Model.DELETED, onDeleted);
+  model.on(Model.FOUND, onFound);
+  model.on(Model.UPDATED, onUpdated);
 
   beforeAll(async () => {
-    await client.connect();
+    await model.connect();
     await manager.connect();
   });
 
@@ -40,22 +35,22 @@ describe('integration', () => {
     const expected = [{ ...object, id: 1 }];
 
     // Create
-    const created = await client.create(object);
+    const created = await model.create(object);
     expect(created).toEqual(expected);
 
     // Find
-    const found = await client.find(object);
+    const found = await model.find(object);
     expect(found).toEqual(expected);
 
     // Update
     const updatedExpected = [{ ...expected[0], updated: true }];
-    const updated = await client.update(object, { $set: { updated: true } });
+    const updated = await model.update(object, { $set: { updated: true } });
     expect(updated).toEqual(updatedExpected);
 
     // Delete
-    const deleted = await client.delete(object);
+    const deleted = await model.delete(object);
     expect(deleted).toEqual(updatedExpected);
-    expect(await client.find(object)).toEqual([]);
+    expect(await model.find(object)).toEqual([]);
 
     // Events
     expect(onCreated).toHaveBeenCalledWith({ data: expected });
