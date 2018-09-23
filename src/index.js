@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  Model: require('./model'),
+  Client: require('./client'),
   Store: require('./store'),
   Service: require('./service'),
   Transport: require('./transport'),

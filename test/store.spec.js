@@ -11,7 +11,7 @@ describe('Store', () => {
   });
 
   const store = new Store({
-    modelNames: ['Test'],
+    modelNames: ['test'],
     type: Store.IN_MEMORY,
     store: loki,
   });

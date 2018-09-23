@@ -83,49 +83,49 @@ class Store extends EventEmitter {
   /**
    * Performs an insert of an object or objects into the data store.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {(array|object)} objects object(s) to insert
    * @param {object} [projection] optional fields to return
    * @param {object} [options]
    *
    * @returns {promise} created objects
    */
-  create (model, objects, projection, options) {
-    return this._adapter.create(model, objects, projection, options);
+  create (modelName, objects, projection, options) {
+    return this._adapter.create(modelName, objects, projection, options);
   }
 
   /**
    * Deletes all objects matching the conditions.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} conditions
    * @param {object} [projection] optional fields to return
    * @param {object} [options]
    *
    * @returns {promise} created objects
    */
-  delete (model, conditions, projection, options) {
-    return this._adapter.delete(model, conditions, projection, options);
+  delete (modelName, conditions, projection, options) {
+    return this._adapter.delete(modelName, conditions, projection, options);
   }
 
   /**
    * Finds all objects matching the conditions.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} conditions
    * @param {object} [projection] optional fields to return
    * @param {object} [options]
    *
    * @returns {promise} created objects
    */
-  find (model, conditions, projection, options) {
-    return this._adapter.find(model, conditions, projection, options);
+  find (modelName, conditions, projection, options) {
+    return this._adapter.find(modelName, conditions, projection, options);
   }
 
   /**
    * Updates all objects matching the conditions.
    *
-   * @param {string} model
+   * @param {string} modelName
    * @param {object} conditions
    * @param {object} updates updates to perform
    * @param {object} [projection] optional fields to return
@@ -133,8 +133,8 @@ class Store extends EventEmitter {
    *
    * @returns {promise} created objects
    */
-  update (model, conditions, updates, projection, options) {
-    return this._adapter.update(model, conditions, updates, projection, options);
+  update (modelName, conditions, updates, projection, options) {
+    return this._adapter.update(modelName, conditions, updates, projection, options);
   }
 }
 

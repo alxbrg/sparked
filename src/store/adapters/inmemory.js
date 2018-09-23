@@ -28,13 +28,11 @@ class InMemory {
 
     // Create collections
     this._collections = {};
-    for (const modelName of this._modelNames) {
-      const _modelName = modelName.toLowerCase();
-      this._collections[_modelName] = this._store.addCollection(_modelName, {
+    for (const modelName of this._modelNames)
+      this._collections[modelName] = this._store.addCollection(modelName, {
         clone: true,
         disableMeta: true,
       });
-    }
   }
 
   async connect () {}

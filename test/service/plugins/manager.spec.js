@@ -9,8 +9,9 @@ const {
 const Manager = Service.use(Service.plugins.Manager);
 
 const opts = {
+  name: 'manager',
   store: new Store({
-    modelNames: ['Foo'],
+    modelNames: ['test'],
   }),
 };
 
@@ -18,7 +19,7 @@ describe('Manager', () => {
   describe('constructor', () => {
     test('throws without valid storeOptions', () => {
       /* eslint-disable no-new */
-      expect(() => { new Manager(); }).toThrow();
+      expect(() => { new Manager({ name: 'manager' }); }).toThrow();
       /* eslint-enable no-new */
     });
 
@@ -28,10 +29,10 @@ describe('Manager', () => {
       expect(manager._store).toBeInstanceOf(Store);
       expect(manager._transport).toBeInstanceOf(Transport);
       expect(manager._subjects).toEqual([
-        'foo.create',
-        'foo.delete',
-        'foo.find',
-        'foo.update',
+        'test.create',
+        'test.delete',
+        'test.find',
+        'test.update',
       ]);
     });
   });
@@ -59,10 +60,10 @@ describe('Manager', () => {
     const onFound = jest.fn();
     const onUpdated = jest.fn();
 
-    client.subscribe('foo.created', onCreated);
-    client.subscribe('foo.deleted', onDeleted);
-    client.subscribe('foo.found', onFound);
-    client.subscribe('foo.updated', onUpdated);
+    client.subscribe('test.created', onCreated);
+    client.subscribe('test.deleted', onDeleted);
+    client.subscribe('test.found', onFound);
+    client.subscribe('test.updated', onUpdated);
 
     manager.on(Manager.MESSAGE, onMessage);
     manager.on(Manager.ERROR, () => {}); // ignore errors
@@ -72,8 +73,8 @@ describe('Manager', () => {
     });
 
     test('emits message event', () => {
-      client.publish('foo.create', 'message');
-      expect(onMessage).toHaveBeenCalledWith('message', undefined, 'foo.create');
+      client.publish('test.create', 'message');
+      expect(onMessage).toHaveBeenCalledWith('message', undefined, 'test.create');
     });
 
     test('create', done => {
@@ -85,11 +86,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      client.request('foo.create', request, null, data => {
+      client.request('test.create', request, null, data => {
         const expectedData = { data: 'created' };
-        expect(storeCreate).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeCreate).toHaveBeenCalledWith('test', ...Object.values(request));
         expect(data).toEqual(expectedData);
-        expect(onCreated).toHaveBeenCalledWith(expectedData, undefined, 'foo.created');
+        expect(onCreated).toHaveBeenCalledWith(expectedData, undefined, 'test.created');
         done();
       });
     });
@@ -101,11 +102,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      client.request('foo.delete', request, null, data => {
+      client.request('test.delete', request, null, data => {
         const expectedData = { data: 'deleted' };
-        expect(storeDelete).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeDelete).toHaveBeenCalledWith('test', ...Object.values(request));
         expect(data).toEqual(expectedData);
-        expect(onDeleted).toHaveBeenCalledWith(expectedData, undefined, 'foo.deleted');
+        expect(onDeleted).toHaveBeenCalledWith(expectedData, undefined, 'test.deleted');
         done();
       });
     });
@@ -117,11 +118,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      client.request('foo.find', request, null, data => {
+      client.request('test.find', request, null, data => {
         const expectedData = { data: 'found' };
-        expect(storeFind).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeFind).toHaveBeenCalledWith('test', ...Object.values(request));
         expect(data).toEqual(expectedData);
-        expect(onFound).toHaveBeenCalledWith(expectedData, undefined, 'foo.found');
+        expect(onFound).toHaveBeenCalledWith(expectedData, undefined, 'test.found');
         done();
       });
     });
@@ -134,11 +135,11 @@ describe('Manager', () => {
         options: 'options',
       };
 
-      client.request('foo.update', request, null, data => {
+      client.request('test.update', request, null, data => {
         const expectedData = { data: 'updated' };
-        expect(storeUpdate).toHaveBeenCalledWith('foo', ...Object.values(request));
+        expect(storeUpdate).toHaveBeenCalledWith('test', ...Object.values(request));
         expect(data).toEqual(expectedData);
-        expect(onUpdated).toHaveBeenCalledWith(expectedData, undefined, 'foo.updated');
+        expect(onUpdated).toHaveBeenCalledWith(expectedData, undefined, 'test.updated');
         done();
       });
     });

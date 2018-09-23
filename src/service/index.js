@@ -4,7 +4,7 @@ const { EventEmitter } = require('events');
 const { is, isEmpty, pipe } = require('ramda');
 
 const { isArrayOf } = require('../_internal');
-const Model = require('../model');
+const Client = require('../client');
 const Store = require('../store');
 const Transport = require('../transport');
 
@@ -26,20 +26,18 @@ class Service extends EventEmitter {
    * @param {array} [options.subjects = ['*', '*.>']]
    */
   constructor ({
+    name,
     store,
     transport = new Transport(),
 
-    models = [],
-    subjects = [ '*', '*.>' ],
+    clients = [],
+    subjects = [],
   } = {}) {
     super();
 
     // Assert arguments
-    if (!is(Array, models) || (!isEmpty(models) && !isArrayOf(Model, models)))
-      throw new TypeError(`'models' must be an array of 'sparked.Model'.`);
-
-    if (!is(Array, subjects) || (!isEmpty(subjects) && !isArrayOf(String, subjects)))
-      throw new TypeError(`'subjects' must be an array of strings.`);
+    if (!is(String, name))
+      throw new TypeError(`'name' must be a string.`);
 
     if (store != null && !is(Store, store))
       throw new TypeError(`'store' must be an instance of 'sparked.Store'.`);
@@ -47,10 +45,18 @@ class Service extends EventEmitter {
     if (!is(Transport, transport))
       throw new TypeError(`'transport' must be an instance of 'sparked.Transport'.`);
 
+    if (!is(Array, clients) || (!isEmpty(clients) && !isArrayOf(Client, clients)))
+      throw new TypeError(`'clients' must be an array of 'sparked.Client'.`);
+
+    if (!is(Array, subjects) || (!isEmpty(subjects) && !isArrayOf(String, subjects)))
+      throw new TypeError(`'subjects' must be an array of strings.`);
+
+    this.name = name;
+
     this._store = store;
     this._transport = transport;
 
-    this._models = models;
+    this._clients = clients;
     this._subjects = subjects;
 
     this.connected = false;
@@ -86,10 +92,10 @@ class Service extends EventEmitter {
     // Connect store
     if (this._store) await this._store.connect();
 
-    // Connect models
-    if (!isEmpty(this._models))
-      for (const model of this._models)
-        await model.connect();
+    // Connect clients
+    if (!isEmpty(this._clients))
+      for (const client of this._clients)
+        await client.connect();
 
     // Subscribe to subjects
     this._subjects.forEach(subject =>
@@ -104,10 +110,14 @@ class Service extends EventEmitter {
   }
 
   /**
-   * Emits everything received as `message` events.
+   * Emits every 'message' events and provides a hook for plugins or extensions.
+   *
+   * @param {object} message
+   * @param {string} [replyTo]
+   * @param {string} subject
    */
-  _onMessage (...args) {
-    this.emit(MESSAGE, ...args);
+  async _onMessage (message, replyTo, subject) {
+    this.emit(MESSAGE, message, replyTo, subject);
   }
 
   /**

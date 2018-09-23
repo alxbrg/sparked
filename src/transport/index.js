@@ -52,6 +52,8 @@ class Transport extends EventEmitter {
    * Connects to the message bus.
    */
   async connect () {
+    if (this.connected) return;
+
     await this._adapter.connect();
     this.emit(CONNECT);
   }
@@ -60,6 +62,8 @@ class Transport extends EventEmitter {
    * Disconnects from the message bus.
    */
   async disconnect () {
+    if (!this.connected) return;
+
     await this._adapter.disconnect();
     this.emit(DISCONNECT);
   }

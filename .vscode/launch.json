@@ -10,7 +10,8 @@
       "name": "Launch Tests",
       "program": "${workspaceRoot}/node_modules/.bin/jest",
       "args":[
-        "-i"
+        "-i",
+        "./test/index.spec.js"
       ]
     }
   ]

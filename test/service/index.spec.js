@@ -1,43 +1,42 @@
 'use strict';
 
 const {
-  Model,
+  Client,
   Store,
   Transport,
   Service,
 } = require('../../src');
 
-const model = 'Foo';
-
-const statefulOpts = {
-  store: new Store({
-    modelNames: [model],
-  }),
-};
+const name = 'service';
+const modelName = 'test';
+const store = new Store({
+  modelNames: [modelName],
+});
 
 describe('Service', () => {
   describe('constructor', () => {
     test('type checks', () => {
       /* eslint-disable no-new */
-      expect(() => { new Service({ store: '' }); }).toThrow();
-      expect(() => { new Service({ models: '' }); }).toThrow();
-      expect(() => { new Service({ subjects: '' }); }).toThrow();
-      expect(() => { new Service({ transport: '' }); }).toThrow();
+      expect(() => { new Service(); }).toThrow();
+      expect(() => { new Service({ name, store: '' }); }).toThrow();
+      expect(() => { new Service({ name, clients: '' }); }).toThrow();
+      expect(() => { new Service({ name, subjects: '' }); }).toThrow();
+      expect(() => { new Service({ name, transport: '' }); }).toThrow();
       /* eslint-enable no-new */
     });
 
     test('defaults', () => {
-      const service = new Service();
+      const service = new Service({ name });
 
-      expect(service._models).toEqual([]);
+      expect(service._clients).toEqual([]);
       expect(service._store).toBe(undefined);
       expect(service._transport).toBeInstanceOf(Transport);
-      expect(service._subjects).toEqual([ '*', '*.>' ]);
+      expect(service._subjects).toEqual([]);
     });
 
     describe('with a store', () => {
       test('uses in-memory data store by default', () => {
-        const service = new Service(statefulOpts);
+        const service = new Service({ name, store });
         expect(service._store).toBeInstanceOf(Store);
       });
     });
@@ -45,8 +44,9 @@ describe('Service', () => {
 
   describe('connect/disconnect', () => {
     const service = new Service({
-      ...statefulOpts,
-      models: [ new Model({ name: model }) ],
+      name,
+      store,
+      clients: [ new Client() ],
     });
 
     const onConnect = jest.fn();
@@ -54,7 +54,7 @@ describe('Service', () => {
     service.on(Service.CONNECT, onConnect);
     service.on(Service.DISCONNECT, onDisconnect);
 
-    test('connects to the default in-memory bus and store, and connects models',
+    test('connects to the default in-memory bus and store, and connects clients',
       async () => {
         await service.connect();
 
@@ -64,7 +64,7 @@ describe('Service', () => {
         expect(service._store.connected).toBe(true);
         expect(onConnect).toHaveBeenCalledTimes(1);
 
-        expect(service._models[0].connected).toBe(true);
+        expect(service._clients[0].connected).toBe(true);
       });
 
     test('disconnects', async () => {
@@ -78,7 +78,7 @@ describe('Service', () => {
   });
 
   test('message event', async () => {
-    const service = new Service();
+    const service = new Service({ name, subjects: ['*'] });
     await service.connect();
 
     const onMessage = jest.fn();
@@ -106,8 +106,8 @@ describe('Service', () => {
         SuperClass.static = 'static';
 
         return class extends SuperClass {
-          constructor () {
-            super();
+          constructor (opts) {
+            super(opts);
             this.plugin = 'A';
           }
           method () {
@@ -119,8 +119,8 @@ describe('Service', () => {
       };
 
       const MixinB = SuperClass => class extends SuperClass {
-        constructor () {
-          super();
+        constructor (opts) {
+          super(opts);
           this.onlyOnB = 'only_on_B';
           this.plugin = 'B';
         }
@@ -131,7 +131,7 @@ describe('Service', () => {
       };
 
       const Composed = Service.use(MixinA, MixinB);
-      const composed = new Composed();
+      const composed = new Composed({ name });
 
       expect(Composed.static).toEqual('static');
       expect(composed.plugin).toBe('B');

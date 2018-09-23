@@ -1,56 +1,93 @@
 'use strict';
 
 const {
-  Model,
+  Client,
+  Client: {
+    CREATED,
+    DELETED,
+    FOUND,
+    UPDATED,
+  },
   Store,
   Service,
+  Service: {
+    plugins: {
+      Controller,
+      Manager,
+    },
+  },
 } =  require('../src');
 
-const modelNames = ['Test'];
+const modelName = 'test';
 
-const Manager = Service.use(Service.plugins.Manager);
+const CtrlMngr = Service.use(Manager, Controller);
 
 describe('integration', () => {
-  const model = new Model({ name: modelNames[0] });
-  const store = new Store({ modelNames });
-  const manager = new Manager({ store });
+  const func = jest.fn().mockImplementation(() => 'result');
+  func.constructor = Function;
+
+  const client = new Client();
+  const store = new Store({ modelNames: [ modelName ] });
+  const service = new CtrlMngr({ name: 'service', store, controllers: { func } });
 
   const onCreated = jest.fn();
   const onDeleted = jest.fn();
   const onFound = jest.fn();
   const onUpdated = jest.fn();
 
-  model.on(Model.CREATED, onCreated);
-  model.on(Model.DELETED, onDeleted);
-  model.on(Model.FOUND, onFound);
-  model.on(Model.UPDATED, onUpdated);
+  const onModelEvent = (event, args) => {
+    switch (event) {
+      case CREATED:
+        onCreated(args);
+        break;
+
+      case DELETED:
+        onDeleted(args);
+        break;
+
+      case FOUND:
+        onFound(args);
+        break;
+
+      case UPDATED:
+        onUpdated(args);
+        break;
+    }
+  };
+
+  client.watch({ models: { [modelName]: onModelEvent } });
 
   beforeAll(async () => {
-    await model.connect();
-    await manager.connect();
+    await client.connect();
+    await service.connect();
   });
 
-  test('CRUD actions and events', async () => {
+  test('actions and events', async () => {
     const object = { field: 'created' };
     const expected = [{ ...object, id: 1 }];
 
+    // Call
+    const result = await client.call('service.func', 'argument');
+    expect(func).toHaveBeenCalledWith('argument');
+    expect(result).toEqual('result');
+
     // Create
-    const created = await model.create(object);
+    const created = await client.create(modelName, object);
     expect(created).toEqual(expected);
 
     // Find
-    const found = await model.find(object);
+    const found = await client.find(modelName, object);
     expect(found).toEqual(expected);
 
     // Update
     const updatedExpected = [{ ...expected[0], updated: true }];
-    const updated = await model.update(object, { $set: { updated: true } });
+    const updated = await client.update(modelName, object, { $set: { updated: true } });
     expect(updated).toEqual(updatedExpected);
 
     // Delete
-    const deleted = await model.delete(object);
+    const deleted = await client.delete(modelName, object);
     expect(deleted).toEqual(updatedExpected);
-    expect(await model.find(object)).toEqual([]);
+    expect(await client.find(modelName, object)).toEqual([]);
 
     // Events
     expect(onCreated).toHaveBeenCalledWith({ data: expected });
